@@ -1,0 +1,131 @@
+/**
+ * MotorController.h
+ * Header for MotorController class.
+ * 
+ * Grand Theft Autonomous -- Group 28
+ * Mechatronics (MEAM 510)
+ * 
+ * @author Ethan J. Musser
+ * @version 0.1
+ */
+
+#ifndef MOTORCONTROLLER_h
+#define MOTORCONTROLLER_h
+
+#include <Arduino.h>  // arduino commands
+#include "Encoder.h"  // Encoder object
+
+enum MotorDirection { forward, backward, freeSpin, braking };
+
+/**
+ * PWM-driven brushed motor controller.
+ */
+class MotorController 
+{
+    public:
+        float _speed = 0.0;
+        MotorDirection _direction;
+
+        /**
+         * Constructor for MotorController with single direction pin.
+         * 
+         * @param enablingPin   Enabling signal output pin.
+         * @param directionPin  Direction output pin.
+         */
+        MotorController(unsigned int enablingPin, 
+                        unsigned int directionPin);
+
+        /**
+         * Constructor for MotorController with single direction pin and an 
+         * encoder.
+         * 
+         * @param enablingPin   Enabling signal output pin.
+         * @param directionPin  Direction output pin.
+         * @param encoder       Motor encoder object.
+         */
+        MotorController(unsigned int enablingPin, 
+                        unsigned int directionPin,
+                        Encoder& encoder);
+
+        /**
+         * Constructor for MotorController with two direction pins.
+         * 
+         * @param enablingPin           Enabling signal output pin.
+         * @param forwardDirectionPin   Forward direction output pin.
+         * @param reverseDirectionPin   Reverse direction output pin.
+         */
+        MotorController(unsigned int enablingPin, 
+                        unsigned int forwardDirectionPin,
+                        unsigned int reverseDirectionPin);
+
+        /**
+         * Constructor for MotorController with two direction pins and an 
+         * encoder.
+         * 
+         * @param enablingPin           Enabling signal output pin.
+         * @param forwardDirectionPin   Forward direction output pin.
+         * @param reverseDirectionPin   Reverse direction output pin.
+         * @param encoder               Motor encoder Encoder object.
+         */
+        MotorController(unsigned int enablingPin, 
+                        unsigned int forwardDirectionPin,
+                        unsigned int reverseDirectionPin,
+                        Encoder& encoder);
+
+        /**
+         * Setup and initialize pins.
+         */
+        void setup();
+
+        /**
+         * Sets the motor speed.
+         * 
+         * @param speed Speed in range [-1.0, 1.0]
+         */
+        void set(float speed);
+
+        /**
+         * Adjusts motor speed.
+         * 
+         * @param increment Amount to increment or decrement speed by.  In range
+         *                  [0.0, 1.0] to increment.  In range [-1.0, 0.0] to 
+         *                  decrement.
+         */
+        void adjust(float increment);
+
+        /**
+         * Stops motors without braking.
+         */
+        void stop();
+
+        /**
+         * Stops motors with braking.
+         */
+        void brake();
+
+    protected:
+
+    private:
+        unsigned int _enablingPin;
+        unsigned int _directionPin[2];
+        bool _isDualDirection;
+        bool _hasEncoder;
+        Encoder* _encoder;
+        float _dutyCycle = 0.0;
+
+        /**
+         * Set motor duty cycle.
+         * 
+         * @param duty Duty cycle in range[0.0, 1.0].
+         */
+        void setDutyCycle(float duty);
+
+        /**
+         * Set motor direction.
+         * 
+         * @param direction Motor direction (FORWARD, BACKWARD, FREE, BRAKE).
+         */
+        void setDirection(MotorDirection direction);
+};
+
+#endif // MOTORCONTROLLER_h
