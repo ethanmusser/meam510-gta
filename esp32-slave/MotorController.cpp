@@ -61,3 +61,49 @@ void MotorController::setup()
     set(0.0);
 }
 
+void MotorController::setDutyCycle(float duty)
+{
+    _dutyCycle = constrain(duty, 0.0, 1.0);
+    analogWrite(_enablingPin, (unsigned int) 255 * _dutyCycle);
+}
+
+void MotorController::setDirection(MotorDirection direction)
+{
+    if(direction == forward) {
+        if(_isDualDirection) {
+            digitalWrite(_directionPin[0], HIGH);
+            digitalWrite(_directionPin[1], LOW);
+        } else {
+            digitalWrite(_directionPin[0], HIGH);
+        }
+        _direction = forward;
+    } else if(direction == backward) {
+        if(_isDualDirection) {
+            digitalWrite(_directionPin[0], HIGH);
+            digitalWrite(_directionPin[1], LOW);
+        } else {
+            digitalWrite(_directionPin[0], LOW);
+        }
+        _direction = backward;
+    } else if(direction == freeSpin) {
+        if(_isDualDirection) {
+            digitalWrite(_directionPin[0], LOW);
+            digitalWrite(_directionPin[1], LOW);
+        } else {
+            setDirection(forward);
+        }
+        _direction = freeSpin;
+    } else {// if(direction == braking) 
+        if(_isDualDirection) {
+            digitalWrite(_directionPin[0], HIGH);
+            digitalWrite(_directionPin[1], HIGH);
+        } else {
+            if(_direction == forward) {
+                setDirection(backward);
+            } else {
+                setDirection(forward);
+            }
+        }
+        _direction = braking;
+    }
+}
