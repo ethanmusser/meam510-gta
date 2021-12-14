@@ -61,6 +61,34 @@ void MotorController::setup()
     set(0.0);
 }
 
+void MotorController::set(float speed)
+{
+    // Direction
+    if(speed > 0) {
+        setDirection(forward);
+    } else if(speed < 0) {
+        setDirection(backward);
+    } else {
+        setDirection(braking);
+    } 
+
+    // Duty Cycle
+    _speed = constrain(speed, -1.0, 1.0);
+    setDutyCycle(abs(_speed));
+}
+
+void MotorController::stop()
+{
+    set(0.0);
+    setDirection(freeSpin);
+}
+
+void MotorController::brake()
+{
+    set(0.0);
+    setDirection(braking);
+}
+
 void MotorController::setDutyCycle(float duty)
 {
     _dutyCycle = constrain(duty, 0.0, 1.0);
