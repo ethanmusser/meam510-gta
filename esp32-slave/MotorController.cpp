@@ -77,6 +77,15 @@ void MotorController::set(float speed)
     setDutyCycle(abs(_speed));
 }
 
+void MotorController::adjust(float increment)
+{
+    if(increment >= 0) {
+        setDutyCycle(_dutyCycle + increment);
+    } else {
+        setDutyCycle(_dutyCycle - increment);
+    }
+}
+
 void MotorController::stop()
 {
     set(0.0);
