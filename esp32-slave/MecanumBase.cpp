@@ -21,6 +21,21 @@ MecanumBase::MecanumBase(MotorController& frontLeftMotor,
       _rearRightMotor(&rearRightMotor)
 {}
 
+void MecanumBase::driveCartesian(float xSpeed, 
+                                 float ySpeed,
+                                 float zRotation)
+{
+    // Clamp Inputs
+    xSpeed = constrain(xSpeed, -1.0, 1.0);
+    ySpeed = constrain(ySpeed, -1.0, 1.0);
+    zRotation = constrain(zRotation, -1.0, 1.0);
+
+    // Call Polar Drive to Set Wheel Speeds
+    float magnitude = sqrt(pow(xSpeed, 2) + pow(ySpeed, 2));
+    float angle = atan2(ySpeed, xSpeed);
+    drivePolar(magnitude, angle, zRotation);
+}
+
 void MecanumBase::drivePolar(float magnitude, 
                              float angle,
                              float zRotation)
