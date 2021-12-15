@@ -16,14 +16,24 @@
 /**
  * Pin Definitions
  */
-#define M1_CTRL_PIN 21
+// SN754410 Driver Pins
+#define M1_EN_PIN 21
 #define M1_DIR_PIN 26
-#define M2_CTRL_PIN 22
+#define M2_EN_PIN 22
 #define M2_DIR_PIN 25
-#define M3_CTRL_PIN 19
+#define M3_EN_PIN 19
 #define M3_DIR_PIN 32
-#define M4_CTRL_PIN 23
+#define M4_EN_PIN 23
 #define M4_DIR_PIN 33
+// LV8401V Driver Pins
+#define M1_FDIR_PIN 21
+#define M1_RDIR_PIN 26
+#define M2_FDIR_PIN 22
+#define M2_RDIR_PIN 25
+#define M3_FDIR_PIN 19
+#define M3_RDIR_PIN 32
+#define M4_FDIR_PIN 23
+#define M4_RDIR_PIN 33
 
 /**
  * Miscellaneous Definitions
@@ -48,10 +58,17 @@ float baseSpeed = 0.8;
  * Global Objects
  */
 HTML510Server h(80);
-MotorController frontLeftMotor(M1_CTRL_PIN, M1_DIR_PIN);
-MotorController frontRightMotor(M2_CTRL_PIN, M2_DIR_PIN);
-MotorController rearLeftMotor(M3_CTRL_PIN, M3_DIR_PIN);
-MotorController rearRightMotor(M4_CTRL_PIN, M4_DIR_PIN);
+// SN754410 Driver MotorController
+// MotorController frontLeftMotor(M1_EN_PIN, M1_DIR_PIN);
+// MotorController frontRightMotor(M2_EN_PIN, M2_DIR_PIN);
+// MotorController rearLeftMotor(M3_EN_PIN, M3_DIR_PIN);
+// MotorController rearRightMotor(M4_EN_PIN, M4_DIR_PIN);
+// LV8401V Driver MotorController
+MotorController frontLeftMotor(-1, M1_FDIR_PIN, M1_RDIR_PIN);
+MotorController frontRightMotor(-1, M2_FDIR_PIN, M2_RDIR_PIN);
+MotorController rearLeftMotor(-1, M3_FDIR_PIN, M3_RDIR_PIN);
+MotorController rearRightMotor(-1, M4_FDIR_PIN, M4_RDIR_PIN);
+// Mobile Base
 MecanumBase base(frontLeftMotor, frontRightMotor, 
                  rearLeftMotor, rearRightMotor);
 
