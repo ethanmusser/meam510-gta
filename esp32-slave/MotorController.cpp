@@ -74,113 +74,140 @@ void MotorController::set(float speed)
 
     // Set Duty Cycle & Direction
     if(speed > 0) {
-        setDutyCycleAndDirection(abs(speed), forward);
+        setDuty(abs(speed), forward);
     } else if(speed < 0) {
-        setDutyCycleAndDirection(abs(speed), backward);
+        setDuty(abs(speed), backward);
     } else {
-        setDutyCycleAndDirection(abs(speed), braking);
+        setDuty(abs(speed), braking);
     } 
 }
 
 void MotorController::adjust(float increment)
 {
     if(increment >= 0) {
-        setDutyCycleAndDirection(_dutyCycle + increment, _direction);
+        setDuty(_dutyCycle + increment, _direction);
     } else {
-        setDutyCycleAndDirection(_dutyCycle - increment, _direction);
+        setDuty(_dutyCycle - increment, _direction);
     }
 }
 
 void MotorController::stop()
 {
-    setDutyCycleAndDirection(0.0, freeSpin);
+    setDuty(0.0, freeSpin);
 }
 
 void MotorController::brake()
 {
-    setDutyCycleAndDirection(0.0, braking);
+    setDuty(0.0, braking);
 }
 
-void MotorController::setDutyCycleAndDirection(float duty, 
-                                               MotorDirection direction)
+void MotorController::setDuty(float duty, 
+                              MotorDirection direction)
 {
-    // Constrain Inputs
-    _dutyCycle = constrain(duty, 0.0, 1.0);
-
-    // Drive Pins
     switch(direction) {
-        // Forward Case
         case forward:
-            if(_isEnablingDrive && _isDualDirection) {
-                analogWrite(_enablingPin, (unsigned int) 255 * _dutyCycle);
-                digitalWrite(_directionPin[0], HIGH);
-                digitalWrite(_directionPin[1], LOW);
-            } else if(!_isEnablingDrive && _isDualDirection) {
-                analogWrite(_directionPin[0], (unsigned int) 255 * _dutyCycle);
-                analogWrite(_directionPin[1], 0);
-            } else if(_isEnablingDrive && !_isDualDirection) {
-                analogWrite(_enablingPin, (unsigned int) 255 * _dutyCycle);
-                digitalWrite(_directionPin[0], HIGH);
-            } else { // if(!_isEnablingDrive && !_isDualDirection)
-                analogWrite(_directionPin[0], (unsigned int) 255 * _dutyCycle);
-            }
-            _direction = forward;
+            setDutyForward(duty);
             break;
-        // Backward Case
         case backward:
-            if(_isEnablingDrive && _isDualDirection) {
-                analogWrite(_enablingPin, (unsigned int) 255 * _dutyCycle);
-                digitalWrite(_directionPin[0], LOW);
-                digitalWrite(_directionPin[1], HIGH);
-            } else if(!_isEnablingDrive && _isDualDirection) {
-                analogWrite(_directionPin[0], 0);
-                analogWrite(_directionPin[1], (unsigned int) 255 * _dutyCycle);
-            } else if(_isEnablingDrive && !_isDualDirection) {
-                analogWrite(_enablingPin, (unsigned int) 255 * _dutyCycle);
-                digitalWrite(_directionPin[0], LOW);
-            } else { // if(!_isEnablingDrive && !_isDualDirection)
-                analogWrite(_directionPin[0], (unsigned int) 255 * _dutyCycle);
-            }
-            _direction = backward;
+            setDutyBackward(duty);
             break;
-        // Free-Spinning Case
         case freeSpin:
-            if(_isEnablingDrive && _isDualDirection) {
-                analogWrite(_enablingPin, 0);
-                digitalWrite(_directionPin[0], LOW);
-                digitalWrite(_directionPin[1], LOW);
-            } else if(!_isEnablingDrive && _isDualDirection) {
-                analogWrite(_directionPin[0], 0);
-                analogWrite(_directionPin[1], 0);
-            } else if(_isEnablingDrive && !_isDualDirection) {
-                setDutyCycleAndDirection(0.0, _direction);
-            } else { // if(!_isEnablingDrive && !_isDualDirection)
-                analogWrite(_directionPin[0], 0);
-            }
-            _direction = freeSpin;
+            setDutyFree(duty);
             break;
-        // Braking Case
         case braking:
-            if(_isEnablingDrive && _isDualDirection) {
-                analogWrite(_enablingPin, 255);
-                digitalWrite(_directionPin[0], HIGH);
-                digitalWrite(_directionPin[1], HIGH);
-            } else if(!_isEnablingDrive && _isDualDirection) {
-                analogWrite(_directionPin[0], 255);
-                analogWrite(_directionPin[1], 255);
-            } else if(_isEnablingDrive && !_isDualDirection) {
-                if(_direction == forward) {
-                    setDutyCycleAndDirection(0.0, backward);
-                } else if(direction == backward) {
-                    setDutyCycleAndDirection(0.0, forward);
-                } else {
-                    analogWrite(_enablingPin, 0);
-                }
-            } else { // if(!_isEnablingDrive && !_isDualDirection)
-                analogWrite(_directionPin[0], 0);
-            }
-            _direction = braking;
+            setDutyBrake(duty);
             break;
     }
 }
 
+void MotorController::setDutyForward(float duty)
+{
+    // Constrain Inputs
+    _dutyCycle = constrain(duty, 0.0, 1.0);
+
+    // Set Pins
+    if(_isEnablingDrive && _isDualDirection) {
+        analogWrite(_enablingPin, (unsigned int) 255 * _dutyCycle);
+        digitalWrite(_directionPin[0], HIGH);
+        digitalWrite(_directionPin[1], LOW);
+    } else if(!_isEnablingDrive && _isDualDirection) {
+        analogWrite(_directionPin[0], (unsigned int) 255 * _dutyCycle);
+        analogWrite(_directionPin[1], 0);
+    } else if(_isEnablingDrive && !_isDualDirection) {
+        analogWrite(_enablingPin, (unsigned int) 255 * _dutyCycle);
+        digitalWrite(_directionPin[0], HIGH);
+    } else { // if(!_isEnablingDrive && !_isDualDirection)
+        analogWrite(_directionPin[0], (unsigned int) 255 * _dutyCycle);
+    }
+    _direction = forward;
+}
+
+void MotorController::setDutyBackward(float duty)
+{
+    // Constrain Inputs
+    _dutyCycle = constrain(duty, 0.0, 1.0);
+
+    // Set Pins
+    if(_isEnablingDrive && _isDualDirection) {
+        analogWrite(_enablingPin, (unsigned int) 255 * _dutyCycle);
+        digitalWrite(_directionPin[0], LOW);
+        digitalWrite(_directionPin[1], HIGH);
+    } else if(!_isEnablingDrive && _isDualDirection) {
+        analogWrite(_directionPin[0], 0);
+        analogWrite(_directionPin[1], (unsigned int) 255 * _dutyCycle);
+    } else if(_isEnablingDrive && !_isDualDirection) {
+        analogWrite(_enablingPin, (unsigned int) 255 * _dutyCycle);
+        digitalWrite(_directionPin[0], LOW);
+    } else { // if(!_isEnablingDrive && !_isDualDirection)
+        analogWrite(_directionPin[0], (unsigned int) 255 * _dutyCycle);
+    }
+    _direction = backward;
+}
+
+void MotorController::setDutyFree(float duty) 
+{
+    // Constrain Inputs
+    _dutyCycle = constrain(duty, 0.0, 1.0);
+
+    // Set Pins
+    if(_isEnablingDrive && _isDualDirection) {
+        analogWrite(_enablingPin, 0);
+        digitalWrite(_directionPin[0], LOW);
+        digitalWrite(_directionPin[1], LOW);
+    } else if(!_isEnablingDrive && _isDualDirection) {
+        analogWrite(_directionPin[0], 0);
+        analogWrite(_directionPin[1], 0);
+    } else if(_isEnablingDrive && !_isDualDirection) {
+        setDuty(0.0, _direction);
+    } else { // if(!_isEnablingDrive && !_isDualDirection)
+        analogWrite(_directionPin[0], 0);
+    }
+    _direction = freeSpin;
+}
+
+void MotorController::setDutyBrake(float duty) 
+{
+    // Constrain Inputs
+    _dutyCycle = constrain(duty, 0.0, 1.0);
+
+    // Set Pins
+    if(_isEnablingDrive && _isDualDirection) {
+        analogWrite(_enablingPin, 255);
+        digitalWrite(_directionPin[0], HIGH);
+        digitalWrite(_directionPin[1], HIGH);
+    } else if(!_isEnablingDrive && _isDualDirection) {
+        analogWrite(_directionPin[0], 255);
+        analogWrite(_directionPin[1], 255);
+    } else if(_isEnablingDrive && !_isDualDirection) {
+        if(_direction == forward) {
+            setDuty(0.0, backward);
+        } else if(_direction == backward) {
+            setDuty(0.0, forward);
+        } else {
+            analogWrite(_enablingPin, 0);
+        }
+    } else { // if(!_isEnablingDrive && !_isDualDirection)
+        analogWrite(_directionPin[0], 0);
+    }
+    _direction = braking;
+}

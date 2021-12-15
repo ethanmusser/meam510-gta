@@ -125,7 +125,35 @@ class MotorController
          * @param direction Motor direction (forward, backward, freeSpin, 
          *                  braking).
          */
-        void setDutyCycleAndDirection(float duty, MotorDirection direction);
+        void setDuty(float duty, MotorDirection direction);
+
+        /**
+         * Set motor duty cycle driving forward.
+         * 
+         * @param duty Duty cycle in range[0.0, 1.0].
+         */
+        void setDutyForward(float duty);
+
+        /**
+         * Set motor duty cycle driving backward.
+         * 
+         * @param duty Duty cycle in range[0.0, 1.0].
+         */
+        void setDutyBackward(float duty);
+
+        /**
+         * Set motor duty cycle free spinning.
+         * 
+         * @param duty Duty cycle in range[0.0, 1.0].
+         */
+        void setDutyFree(float duty);
+
+        /**
+         * Set motor duty cycle braking.
+         * 
+         * @param duty Duty cycle in range[0.0, 1.0].
+         */
+        void setDutyBrake(float duty);
 };
 
 #endif // MOTORCONTROLLER_h
