@@ -29,7 +29,8 @@ class MotorController
         /**
          * Constructor for MotorController with single direction pin.
          * 
-         * @param enablingPin   Enabling signal output pin.
+         * @param enablingPin   Enabling signal output pin.  Negative if PWM 
+         *                      drive through direction pin.
          * @param directionPin  Direction output pin.
          */
         MotorController(unsigned int enablingPin, 
@@ -39,7 +40,8 @@ class MotorController
          * Constructor for MotorController with single direction pin and an 
          * encoder.
          * 
-         * @param enablingPin   Enabling signal output pin.
+         * @param enablingPin   Enabling signal output pin.  Negative if PWM 
+         *                      drive through direction pin.
          * @param directionPin  Direction output pin.
          * @param encoder       Motor encoder object.
          */
@@ -50,7 +52,8 @@ class MotorController
         /**
          * Constructor for MotorController with two direction pins.
          * 
-         * @param enablingPin           Enabling signal output pin.
+         * @param enablingPin           Enabling signal output pin.  Negative if
+         *                              PWM drive through direction pins.
          * @param forwardDirectionPin   Forward direction output pin.
          * @param reverseDirectionPin   Reverse direction output pin.
          */
@@ -62,7 +65,8 @@ class MotorController
          * Constructor for MotorController with two direction pins and an 
          * encoder.
          * 
-         * @param enablingPin           Enabling signal output pin.
+         * @param enablingPin           Enabling signal output pin.  Negative if
+         *                              PWM drive through direction pins.
          * @param forwardDirectionPin   Forward direction output pin.
          * @param reverseDirectionPin   Reverse direction output pin.
          * @param encoder               Motor encoder Encoder object.
@@ -108,24 +112,20 @@ class MotorController
     private:
         unsigned int _enablingPin;
         unsigned int _directionPin[2];
+        bool _isEnablingDrive;
         bool _isDualDirection;
         bool _hasEncoder;
         Encoder* _encoder;
         float _dutyCycle = 0.0;
 
         /**
-         * Set motor duty cycle.
+         * Set motor duty cycle and direction.
          * 
          * @param duty Duty cycle in range[0.0, 1.0].
+         * @param direction Motor direction (forward, backward, freeSpin, 
+         *                  braking).
          */
-        void setDutyCycle(float duty);
-
-        /**
-         * Set motor direction.
-         * 
-         * @param direction Motor direction (FORWARD, BACKWARD, FREE, BRAKE).
-         */
-        void setDirection(MotorDirection direction);
+        void setDutyCycleAndDirection(float duty, MotorDirection direction);
 };
 
 #endif // MOTORCONTROLLER_h
