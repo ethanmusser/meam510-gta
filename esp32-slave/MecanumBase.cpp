@@ -48,10 +48,10 @@ void MecanumBase::drivePolar(float magnitude,
     // Compute Wheel Speeds
     float trigEntry = angle + M_PI_4;
     WheelSpeeds wheelSpeeds;
-    wheelSpeeds.frontLeftSpeed  = magnitude * sin(trigEntry) + zRotation;
-    wheelSpeeds.frontRightSpeed = magnitude * cos(trigEntry) - zRotation;
-    wheelSpeeds.rearLeftSpeed   = magnitude * cos(trigEntry) + zRotation;
-    wheelSpeeds.rearRightSpeed  = magnitude * sin(trigEntry) - zRotation;
+    wheelSpeeds.frontLeftSpeed  = sqrt(2) * (magnitude * sin(trigEntry) + zRotation);
+    wheelSpeeds.frontRightSpeed = sqrt(2) * (magnitude * cos(trigEntry) - zRotation);
+    wheelSpeeds.rearLeftSpeed   = sqrt(2) * (magnitude * cos(trigEntry) + zRotation);
+    wheelSpeeds.rearRightSpeed  = sqrt(2) * (magnitude * sin(trigEntry) - zRotation);
 
     // Set Wheel Speeds
     setWheelSpeeds(wheelSpeeds);
