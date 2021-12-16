@@ -12,7 +12,7 @@
 #include "indexJS.h"
 #include "html510.h"
 #include "MecanumBase.h"
-#include "vive510.h"
+#include "APC.h"
 
 /**
  * Pin Definitions
@@ -64,6 +64,8 @@ MecanumBase base(frontLeftMotor, frontRightMotor,
 // Vive Sensors
 Vive510 frontVive(VIVE_F_PIN);
 Vive510 rearVive(VIVE_R_PIN);
+// Absolute Position Control
+APC apc(base, frontVive, rearVive, 0.0, 0.0, 0.0, 1.0, 0.0, 0.2);
 
 
 /* -------------------------------------------------------------------------- */

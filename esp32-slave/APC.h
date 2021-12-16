@@ -13,7 +13,8 @@
 #define APC_h
 
 #include <Arduino.h>  // arduino commands
-#include "vive510.h"  // motor controllers
+#include "vive510.h"  // vive position detection
+#include "MecanumBase.h"  // mecanum base
 
 struct Pose2D {
     float x;
@@ -27,14 +28,25 @@ struct Twist2D {
     float vtheta;
 };
 
+struct Gains {
+    float kp;
+    float ki;
+    float kd;
+};
+
 /**
  * Absolute positioning controller (APC) class.
  */
 class APC 
 {
     public:
-        Pose2D _currentPose = { 0.0, 0.0, 0.0 };
-        Pose2D _desiredPose = { 0.0, 0.0, 0.0 };
+        Gains _gains;
+        float _epsilon;
+        Pose2D _currentPose;
+        Twist2D _currentTwist;
+        Pose2D _desiredPose;
+        Pose2D _previousPose;
+        unsigned long _previousUpdateTime;
 
         /**
          * Constructor for APC with only position sensing.
@@ -43,11 +55,19 @@ class APC
          * @param vive      Vive sensor mounted to mobile base.
          * @param xOffset   Origin offset from vive x-position in meters.
          * @param yOffset   Origin offset from vive y-position in meters.
+         * @param kp        Proportional gain.
+         * @param ki        Integral gain.
+         * @param kd        Derivative gain.
+         * @param epsilon   Allowable norm state error.
          */
         APC(MecanumBase& base,
             Vive510& vive,
             float xOffset = 0.0,
-            float yOffset = 0.0);
+            float yOffset = 0.0,
+            float kp = 1.0,
+            float ki = 0.0,
+            float kd = 0.2,
+            float epsilon = 0.02);
         
         /**
          * Constructor for APC with position and orientation.
@@ -57,26 +77,23 @@ class APC
          * @param rearVive  Rear vive sensor mounted to mobile base.
          * @param xOffset   Origin offset from front vive x-position in meters.
          * @param yOffset   Origin offset from front vive y-position in meters.
-         * @param qOffset   Base angular offset from vive-to-vive axis in 
-         *                  radians.
+         * @param qOffset   Angular offset from vive-to-vive axis in radians.
+         * @param kp        Proportional gain.
+         * @param ki        Integral gain.
+         * @param kd        Derivative gain.
+         * @param epsilon   Allowable norm state error.
          */
         APC(MecanumBase& base,
             Vive510& frontVive, 
             Vive510& rearVive,
             float xOffset = 0.0,
             float yOffset = 0.0,
-            float qOffset = 0.0);
+            float qOffset = 0.0,
+            float kp = 1.0,
+            float ki = 0.0,
+            float kd = 0.2,
+            float epsilon = 0.02);
 
-        /**
-         * Enables absolute position control.
-         */
-        void enable();
-        
-        /**
-         * Disables absolute position control.
-         */
-        void disable();
-        
         /**
          * Sets base destination pose..
          * 
@@ -100,6 +117,11 @@ class APC
          */
         void update();
         
+        /**
+         * Disables absolute position control.
+         */
+        void disable();
+        
     protected:
 
     private:
@@ -116,20 +138,36 @@ class APC
         void computePose();
 
         /**
-         * Returns the error between two poses.
+         * Compute control input to base.
          * 
          * @param currentPose   Current pose.
+         * @param currentTwist  Current twist.
          * @param desiredPose   Desired pose.
+         * @param gains         Contorller gains.
+         */
+        Twist2D computeControl(Pose2D currentPose,
+                               Twist2D currentTwist,
+                               Pose2D desiredPose,
+                               Gains gains);
+
+        /**
+         * Returns the error between two poses.
+         * 
+         * @param current   Current pose.
+         * @param desired   Desired pose.
          * @return Pose2D of error between current and desired poses.
          */
-        Pose2D computeError(Pose2D currentPose,
-                            Pose2D desiredPose);
+        Pose2D computeError(Pose2D current,
+                            Pose2D desired);
         
         /**
-         * Compute control input to base.
+         * Returns the Euclidean norm of a set of pose states.
+         * 
+         * @param pose  Pose.
+         * @return Euclidean norm of pose states.
          */
-        Twist2D computeControl();
-
+        float computeNorm(Pose2D pose);
+        
         /**
          * Wraps angle to specified range.  
          * 
