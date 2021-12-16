@@ -12,33 +12,28 @@
 #include "indexJS.h"
 #include "html510.h"
 #include "MecanumBase.h"
+#include "vive510.h"
 
 /**
  * Pin Definitions
  */
-// SN754410 Driver Pins
-#define M1_EN_PIN 21
-#define M1_DIR_PIN 26
-#define M2_EN_PIN 22
-#define M2_DIR_PIN 25
-#define M3_EN_PIN 19
-#define M3_DIR_PIN 32
-#define M4_EN_PIN 23
-#define M4_DIR_PIN 33
 // LV8401V Driver Pins
-#define M1_FDIR_PIN 21
-#define M1_RDIR_PIN 26
-#define M2_FDIR_PIN 22
-#define M2_RDIR_PIN 25
-#define M3_FDIR_PIN 19
-#define M3_RDIR_PIN 32
-#define M4_FDIR_PIN 23
-#define M4_RDIR_PIN 33
+#define M1_IN1_PIN 21
+#define M1_IN2_PIN 26
+#define M2_IN1_PIN 22
+#define M2_IN2_PIN 25
+#define M3_IN1_PIN 19
+#define M3_IN2_PIN 32
+#define M4_IN1_PIN 23
+#define M4_IN2_PIN 33
+// Vive Pins
+#define VIVE_F_PIN 1
+#define VIVE_R_PIN 2
 
 /**
  * Miscellaneous Definitions
  */
-#define DEBUGMODE 1
+#define DEBUGMODE 0
 #define SPEEDINC 25
 
 /**
@@ -58,19 +53,18 @@ float baseSpeed = 0.8;
  * Global Objects
  */
 HTML510Server h(80);
-// SN754410 Driver MotorController
-// MotorController frontLeftMotor(M1_EN_PIN, M1_DIR_PIN);
-// MotorController frontRightMotor(M2_EN_PIN, M2_DIR_PIN);
-// MotorController rearLeftMotor(M3_EN_PIN, M3_DIR_PIN);
-// MotorController rearRightMotor(M4_EN_PIN, M4_DIR_PIN);
 // LV8401V Driver MotorController
-MotorController frontLeftMotor(-1, M1_FDIR_PIN, M1_RDIR_PIN);
-MotorController frontRightMotor(-1, M2_FDIR_PIN, M2_RDIR_PIN);
-MotorController rearLeftMotor(-1, M3_FDIR_PIN, M3_RDIR_PIN);
-MotorController rearRightMotor(-1, M4_FDIR_PIN, M4_RDIR_PIN);
+MotorController frontLeftMotor(-1, M1_IN1_PIN, M1_IN2_PIN);
+MotorController frontRightMotor(-1, M2_IN1_PIN, M2_IN2_PIN);
+MotorController rearLeftMotor(-1, M3_IN1_PIN, M3_IN2_PIN);
+MotorController rearRightMotor(-1, M4_IN1_PIN, M4_IN2_PIN);
 // Mobile Base
 MecanumBase base(frontLeftMotor, frontRightMotor, 
                  rearLeftMotor, rearRightMotor);
+// Vive Sensors
+Vive510 frontVive(VIVE_F_PIN);
+Vive510 rearVive(VIVE_R_PIN);
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -227,6 +221,10 @@ void setup() {
     frontRightMotor.setup();
     rearLeftMotor.setup();
     rearRightMotor.setup();
+
+    // Vive Sensors
+    frontVive.begin();
+    rearVive.begin();
 }
 
 /**
