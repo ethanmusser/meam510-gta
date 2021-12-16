@@ -33,7 +33,7 @@ class MotorController
          *                      drive through direction pin.
          * @param directionPin  Direction output pin.
          */
-        MotorController(unsigned int enablingPin, 
+        MotorController(int enablingPin, 
                         unsigned int directionPin);
 
         /**
@@ -45,7 +45,7 @@ class MotorController
          * @param directionPin  Direction output pin.
          * @param encoder       Motor encoder object.
          */
-        MotorController(unsigned int enablingPin, 
+        MotorController(int enablingPin, 
                         unsigned int directionPin,
                         Encoder& encoder);
 
@@ -57,7 +57,7 @@ class MotorController
          * @param forwardDirectionPin   Forward direction output pin.
          * @param reverseDirectionPin   Reverse direction output pin.
          */
-        MotorController(unsigned int enablingPin, 
+        MotorController(int enablingPin, 
                         unsigned int forwardDirectionPin,
                         unsigned int reverseDirectionPin);
 
@@ -71,7 +71,7 @@ class MotorController
          * @param reverseDirectionPin   Reverse direction output pin.
          * @param encoder               Motor encoder Encoder object.
          */
-        MotorController(unsigned int enablingPin, 
+        MotorController(int enablingPin, 
                         unsigned int forwardDirectionPin,
                         unsigned int reverseDirectionPin,
                         Encoder& encoder);

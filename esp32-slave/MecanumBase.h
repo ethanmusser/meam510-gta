@@ -20,6 +20,13 @@
 #define REARLEFT 2
 #define REARRIGHT 3
 
+struct WheelSpeeds {
+    float frontLeftSpeed;
+    float frontRightSpeed;
+    float rearLeftSpeed;
+    float rearRightSpeed;
+};
+
 /**
  * Mecanum X-drive mobile base.
  * 
@@ -32,13 +39,7 @@
 class MecanumBase 
 {
     public:
-        struct WheelSpeeds {
-            float frontLeftSpeed = 0.0;
-            float frontRightSpeed = 0.0;
-            float rearLeftSpeed = 0.0;
-            float rearRightSpeed = 0.0;
-        };
-        WheelSpeeds _wheelSpeeds;
+        WheelSpeeds _wheelSpeeds = { 0.0, 0.0, 0.0, 0.0 };
 
         /**
          * Constructor for MecanumBase.

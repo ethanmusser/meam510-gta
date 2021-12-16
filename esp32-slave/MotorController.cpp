@@ -12,7 +12,7 @@
 #include "MotorController.h"
 #include <analogWrite.h>  // analogWrite via LEDC
 
-MotorController::MotorController(unsigned int enablingPin, 
+MotorController::MotorController(int enablingPin, 
                                  unsigned int directionPin)
     : _enablingPin(enablingPin),
       _directionPin{directionPin, 0},
@@ -21,7 +21,7 @@ MotorController::MotorController(unsigned int enablingPin,
       _hasEncoder(false)
 {}
 
-MotorController::MotorController(unsigned int enablingPin, 
+MotorController::MotorController(int enablingPin, 
                                  unsigned int directionPin,
                                  Encoder& encoder)
     : _enablingPin(enablingPin),
@@ -32,7 +32,7 @@ MotorController::MotorController(unsigned int enablingPin,
       _hasEncoder(true)
 {}
 
-MotorController::MotorController(unsigned int enablingPin, 
+MotorController::MotorController(int enablingPin, 
                                  unsigned int forwardDirectionPin,
                                  unsigned int reverseDirectionPin)
     : _enablingPin(enablingPin),
@@ -42,7 +42,7 @@ MotorController::MotorController(unsigned int enablingPin,
       _hasEncoder(false)
 {}
 
-MotorController::MotorController(unsigned int enablingPin, 
+MotorController::MotorController(int enablingPin, 
                                  unsigned int forwardDirectionPin,
                                  unsigned int reverseDirectionPin,
                                  Encoder& encoder)
@@ -73,12 +73,12 @@ void MotorController::set(float speed)
     _speed = constrain(speed, -1.0, 1.0);
 
     // Set Duty Cycle & Direction
-    if(speed > 0) {
-        setDuty(abs(speed), forward);
-    } else if(speed < 0) {
-        setDuty(abs(speed), backward);
+    if(_speed > 0) {
+        setDuty(abs(_speed), forward);
+    } else if(_speed < 0) {
+        setDuty(abs(_speed), backward);
     } else {
-        setDuty(abs(speed), braking);
+        setDuty(abs(_speed), braking);
     } 
 }
 
