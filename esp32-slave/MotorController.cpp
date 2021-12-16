@@ -73,12 +73,12 @@ void MotorController::set(float speed)
     _speed = constrain(speed, -1.0, 1.0);
 
     // Set Duty Cycle & Direction
-    if(speed > 0) {
-        setDuty(abs(speed), forward);
-    } else if(speed < 0) {
-        setDuty(abs(speed), backward);
+    if(_speed > 0) {
+        setDuty(abs(_speed), forward);
+    } else if(_speed < 0) {
+        setDuty(abs(_speed), backward);
     } else {
-        setDuty(abs(speed), braking);
+        setDuty(abs(_speed), braking);
     } 
 }
 
