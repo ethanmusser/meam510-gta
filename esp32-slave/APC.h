@@ -41,8 +41,8 @@ class APC
          * 
          * @param base      Mobile base.
          * @param vive      Vive sensor mounted to mobile base.
-         * @param xOffset   Origin offset from vive x-position.
-         * @param yOffset   Origin offset from vive y-position.
+         * @param xOffset   Origin offset from vive x-position in meters.
+         * @param yOffset   Origin offset from vive y-position in meters.
          */
         APC(MecanumBase& base,
             Vive510& vive,
@@ -55,14 +55,17 @@ class APC
          * @param base      Mobile base.
          * @param frontVive Front vive sensor mounted to mobile base.
          * @param rearVive  Rear vive sensor mounted to mobile base.
-         * @param xOffset   Origin offset from front vive x-position.
-         * @param yOffset   Origin offset from front vive y-position.
+         * @param xOffset   Origin offset from front vive x-position in meters.
+         * @param yOffset   Origin offset from front vive y-position in meters.
+         * @param qOffset   Base angular offset from vive-to-vive axis in 
+         *                  radians.
          */
         APC(MecanumBase& base,
             Vive510& frontVive, 
             Vive510& rearVive,
             float xOffset = 0.0,
-            float yOffset = 0.0);
+            float yOffset = 0.0,
+            float qOffset = 0.0);
 
         /**
          * Enables absolute position control.
@@ -100,8 +103,12 @@ class APC
     protected:
 
     private:
+        MecanumBase* _base;
         Vive510* _frontVive;
         Vive510* _rearVive;
+        Pose2D _offsets;
+        bool _hasRearVive;
+        bool _isEnabled;
 
         /**
          * Computes current pose from vive sensor(s).
@@ -122,6 +129,18 @@ class APC
          * Compute control input to base.
          */
         Twist2D computeControl();
+
+        /**
+         * Wraps angle to specified range.  
+         * 
+         * @param angle Angle to be wrapped.
+         * @param lower Lower constraint (default -pi).
+         * @param upper Upper constraint (default pi).
+         * @return Angle wrapped to range [lower, upper].
+         */
+        float wrapAngle(float angle,
+                        float lower = -M_PI,
+                        float upper = M_PI);
 
 };
 
