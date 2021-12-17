@@ -227,15 +227,15 @@ const char body[] PROGMEM = R"===(
                                 <div class="btn_div" style="width: 25%;">
                                     <div class="row">
                                         <label for="x_offset_input">X:</label>
-                                        <input type="number" class="field info" id="x_offset_input" min="0" max="9999" value="4000">
+                                        <input type="number" class="field info" id="x_offset_input" step="10" min="0" max="9999" value="0">
                                     </div>
                                     <div class="row">
                                         <label for="y_offset_input">Y:</label>
-                                        <input type="number" class="field info" id="y_offset_input" min="0" max="9999" value="4000">
+                                        <input type="number" class="field info" id="y_offset_input" step="10" min="0" max="9999" value="0">
                                     </div>
                                     <div class="row">
                                         <label for="q_offset_input">Q:</label>
-                                        <input type="number" class="field info" id="q_offset_input" min="0" max="360" value="180">
+                                        <input type="number" class="field info" id="q_offset_input" step="10" min="0" max="360" value="180">
                                     </div>
                                     <div class="row">
                                         <div class="btn_div" style="width: 50%;">
@@ -246,15 +246,15 @@ const char body[] PROGMEM = R"===(
                                 <div class="btn_div" style="width: 25%;">
                                     <div class="row">
                                         <label for="x_pos_input">X:</label>
-                                        <input type="number" class="field info" id="x_pos_input" min="0" max="9999" value="4000">
+                                        <input type="number" class="field info" id="x_pos_input" step="10" min="0" max="9999" value="4000">
                                     </div>
                                     <div class="row">
                                         <label for="y_pos_input">Y:</label>
-                                        <input type="number" class="field info" id="y_pos_input" min="0" max="9999" value="4000">
+                                        <input type="number" class="field info" id="y_pos_input" step="10" min="0" max="9999" value="4000">
                                     </div>
                                     <div class="row">
                                         <label for="q_pos_input">Q:</label>
-                                        <input type="number" class="field info" id="q_pos_input" min="0" max="360" value="180">
+                                        <input type="number" class="field info" id="q_pos_input" step="10" min="0" max="360" value="180">
                                     </div>
                                     <div class="row">
                                         <div class="btn_div" style="width: 50%;">
@@ -266,21 +266,21 @@ const char body[] PROGMEM = R"===(
                                     <div class="btn_div" style="width: 50%;">
                                         <div class="row">
                                             <label for="p_gain_input">Kp-T:</label>
-                                            <input type="number" class="field info" id="p_trans_gain_input" step="0.01" min="0" max="9.99" value="1.0">
+                                            <input type="number" class="field info" id="p_trans_gain_input" step="0.01" min="0" max="9.99" value="3.00">
                                         </div>
                                         <div class="row">
                                             <label for="d_gain_input">Kd-T:</label>
-                                            <input type="number" class="field info" id="d_trans_gain_input" step="0.01" min="0" max="10" value="0.2">
+                                            <input type="number" class="field info" id="d_trans_gain_input" step="0.01" min="0" max="10" value="1.00">
                                         </div>
                                     </div>
                                     <div class="btn_div" style="width: 50%;">
                                         <div class="row">
                                             <label for="p_gain_input">Kp-R:</label>
-                                            <input type="number" class="field info" id="p_rot_gain_input" step="0.01" min="0" max="9.99" value="0.6">
+                                            <input type="number" class="field info" id="p_rot_gain_input" step="0.01" min="0" max="9.99" value="0.60">
                                         </div>
                                         <div class="row">
                                             <label for="d_gain_input">Kd-R:</label>
-                                            <input type="number" class="field info" id="d_rot_gain_input" step="0.01" min="0" max="10" value="0.15">
+                                            <input type="number" class="field info" id="d_rot_gain_input" step="0.01" min="0" max="10" value="0.2">
                                         </div>
                                     </div>
                                     <div class="row">

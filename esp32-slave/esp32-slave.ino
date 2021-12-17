@@ -67,7 +67,7 @@ Vive510 frontVive(VIVE_F_PIN);
 Vive510 rearVive(VIVE_R_PIN);
 // Absolute Position Control
 APC apc(base, frontVive, rearVive, 
-        0.0, 0.0, M_PI_2,
+        0.0, 0.0, 3.0*M_PI_2,
         1.0, 0.2, 0.6, 0.15,
         0.02, 0.17);
 
@@ -198,7 +198,7 @@ void handleSetOffsetsButtonHit() {
     String str = h.getText();
     float x = str.substring(0, 4).toFloat() / 1.0e3;
     float y = str.substring(5, 9).toFloat() / 1.0e3;
-    float q = str.substring(10).toFloat() * M_PI / 180.0;
+    float q = (str.substring(10).toFloat() - 180) * M_PI / 180.0;
     apc.setOffsets(x, y, q);
     if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleSetOffsetsButtonHit");
     h.sendplain("");
@@ -212,7 +212,7 @@ void handleSetDestinationButtonHit() {
     String str = h.getText();
     float x = str.substring(0, 4).toFloat() / 1.0e3;
     float y = str.substring(5, 9).toFloat() / 1.0e3;
-    float q = str.substring(10).toFloat() * M_PI / 180.0;
+    float q = (str.substring(10).toFloat() - 180) * M_PI / 180.0;
     apc.setDestination(x, y, q);
     apc.enable();
     if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleSetDestinationButtonHit");
@@ -237,10 +237,11 @@ void handleSetGainsButtonHit() {
  * Current position update handler.
  */
 void handleGetCurrentPosition() {
-    int x = (int) (apc._currentPose.x * 1.0e3);
-    int y = (int) (apc._currentPose.y * 1.0e3);
-    int theta = (int) (apc._currentPose.theta * 180.0 / M_PI);
-    String str = "x = " + String(x) + "mm\ny = " + String(y) + " mm\nq = " + String(theta) + " deg\n";
+    Pose2D pose = apc.getPose();
+    int x = (int) (pose.x * 1.0e3);
+    int y = (int) (pose.y * 1.0e3);
+    int theta = (int) (pose.theta * 180.0 / M_PI) + 180;
+    String str = "x = " + String(x) + "mm, \ny = " + String(y) + " mm, \nq = " + String(theta) + " deg\n";
     if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleGetCurrentPosition");
     h.sendplain(str);
 }
@@ -251,8 +252,8 @@ void handleGetCurrentPosition() {
 void handleGetDesiredPosition() {
     int x = (int) (apc._desiredPose.x * 1.0e3);
     int y = (int) (apc._desiredPose.y * 1.0e3);
-    int theta = (int) (apc._desiredPose.theta * 180.0 / M_PI);
-    String str = "x = " + String(x) + "mm\ny = " + String(y) + " mm\nq = " + String(theta) + " deg\n";
+    int theta = (int) (apc._desiredPose.theta * 180.0 / M_PI) + 180;
+    String str = "x = " + String(x) + "mm, \ny = " + String(y) + " mm, \nq = " + String(theta) + " deg\n";
     if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleGetDesiredPosition");
     h.sendplain(str);
 }
