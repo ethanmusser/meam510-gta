@@ -68,6 +68,9 @@
         .button:hover {
             opacity: 1;
         }
+        label {
+            display: inline-block;
+        }​
         .info {
             background-color: #5bc0de;
         }
@@ -188,6 +191,56 @@
                         </div>
                     </div>
                 </div>
+                <div class="row" title="autonomy">
+                    <div class="block" title="autonomous_ctrl" style="width: 60%;">
+                        <h3>Autonomous</h3>
+                        <div class="btn_panel">
+                            <div class="row">
+                                <div class="btn_div" style="width: 33%;">
+                                    <div class="row">
+                                        <label for="x_pos_input">X:</label>
+                                        <input type="number" class="field info" id="x_pos_input" min="0" max="9999" value="4000">
+                                    </div>
+                                    <div class="row">
+                                        <label for="y_pos_input">Y:</label>
+                                        <input type="number" class="field info" id="y_pos_input" min="0" max="9999" value="4000">
+                                    </div>
+                                    <div class="row">
+                                        <label for="q_pos_input">Q:</label>
+                                        <input type="number" class="field info" id="q_pos_input" min="0" max="360" value="180">
+                                    </div>
+                                    <div class="row">
+                                        <div class="btn_div" style="width: 50%;">
+                                            <button class="button info" id="set_dest_btn" onmousedown="set_dest_btn_hit()">Set Destination</button>
+                                        </div>
+                                    </div>        
+                                </div>
+                                <div class="btn_div" style="width: 33%;">
+                                    <div class="row">
+                                        <label for="p_gain_input">Kp:</label>
+                                        <input type="number" class="field info" id="p_gain_input" step="0.01" min="0" max="9.99" value="1">
+                                    </div>
+                                    <div class="row">
+                                        <label for="i_gain_input">Ki:</label>
+                                        <input type="number" class="field info" id="i_gain_input" step="0.01" min="0" max="9.99" value="0">
+                                    </div>
+                                    <div class="row">
+                                        <label for="d_gain_input">Kd:</label>
+                                        <input type="number" class="field info" id="d_gain_input" step="0.01" min="0" max="10" value="0.2">
+                                    </div>
+                                    <div class="row">
+                                        <div class="btn_div" style="width: 50%;">
+                                            <button class="button info" id="set_gains_btn" onmousedown="set_gain_btn_hit()">Set Gains</button>
+                                        </div>
+                                    </div>        
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="block" title="blank_ctrl" style="width: 40%;">
+                        <h3>Blank</h3>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -263,7 +316,30 @@
             var xhttp = new XMLHttpRequest();
             xhttp.open("GET", "spd_zero_btn_hit", true);
             xhttp.send();
-        }  
+        }
+        // Autonomous Button Hits
+        function set_dest_btn_hit() {
+            var xhttp = new XMLHttpRequest();
+            var xval = ("000" + document.getElementById('x_pos_input').value).slice(-4);
+            var yval = ("000" + document.getElementById('y_pos_input').value).slice(-4);
+            var qval = ("000" + document.getElementById('q_pos_input').value).slice(-3);
+            var destination = xval + "," + yval + "," + qval;
+            var str = "destination?val=";
+            var res = str.concat(destination);
+            xhttp.open("GET", res, true);
+            xhttp.send();
+        }
+        function set_gain_btn_hit() {
+            var xhttp = new XMLHttpRequest();
+            var kpval = parseFloat(document.getElementById('p_gain_input').value).toFixed(2);
+            var kival = parseFloat(document.getElementById('i_gain_input').value).toFixed(2);
+            var kdval = parseFloat(document.getElementById('d_gain_input').value).toFixed(2);
+            var gains = kpval + "," + kival + "," + kdval;
+            var str = "gains?val=";
+            var res = str.concat(gains);
+            xhttp.open("GET", res, true);
+            xhttp.send();
+        }
 
         /**
          * Key Events

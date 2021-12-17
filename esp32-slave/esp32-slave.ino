@@ -27,8 +27,8 @@
 #define M4_IN1_PIN 23
 #define M4_IN2_PIN 33
 // Vive Pins
-#define VIVE_F_PIN 1
-#define VIVE_R_PIN 2
+#define VIVE_F_PIN 36
+#define VIVE_R_PIN 39
 
 /**
  * Miscellaneous Definitions
@@ -65,7 +65,7 @@ MecanumBase base(frontLeftMotor, frontRightMotor,
 Vive510 frontVive(VIVE_F_PIN);
 Vive510 rearVive(VIVE_R_PIN);
 // Absolute Position Control
-APC apc(base, frontVive, rearVive, 0.0, 0.0, 0.0, 1.0, 0.0, 0.2);
+APC apc(base, frontVive, rearVive, 0.0, 0.0, M_PI_2, 1.0, 0.0, 0.2);
 
 
 /* -------------------------------------------------------------------------- */
@@ -178,6 +178,32 @@ void handleSpeedZeroButtonHit() {
 }
 
 /**
+ * Set destination button press handler.
+ */
+void handleSetDestinationButtonHit() {
+    String str = h.getText();
+    float x = str.substring(0, 4).toFloat() / 1.0e3;
+    float y = str.substring(5, 9).toFloat() / 1.0e3;
+    float q = str.substring(10).toFloat() * M_PI / 180.0;
+    apc.setDestination(x, y, q);
+    if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleSetDestinationButtonHit");
+    h.sendplain("");
+}
+
+/**
+ * Set destination button press handler.
+ */
+void handleSetGainsButtonHit() {
+    String str = h.getText();
+    float kp = str.substring(0, 4).toFloat() / 1.0e3;
+    float ki = str.substring(5, 9).toFloat() / 1.0e3;
+    float kd = str.substring(10).toFloat() * M_PI / 180.0;
+    apc.setGains(kp, ki, kd);
+    if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleSetGainsButtonHit");
+    h.sendplain("");
+}
+
+/**
  * Direction state update handler.
  */
 void handle_direction_state() {
@@ -217,6 +243,8 @@ void setup() {
     h.attachHandler("/spd_dwn_btn_hit", handleSpeedDownButtonHit);
     h.attachHandler("/spd_full_btn_hit", handleSpeedFullButtonHit);
     h.attachHandler("/spd_zero_btn_hit", handleSpeedZeroButtonHit);
+    h.attachHandler("/destination?val=", handleSetDestinationButtonHit);
+    h.attachHandler("/gains?val=", handleSetGainsButtonHit);
     
     // Motors
     frontLeftMotor.setup();
@@ -233,6 +261,12 @@ void setup() {
  * Main loop.
  */
 void loop() {
+    // Serve Web Requests
     h.serve();
+
+    // Update Base Control
+    apc.update();
+
+    // Wait
     delay(10);
 }
