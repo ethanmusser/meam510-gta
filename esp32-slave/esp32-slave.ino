@@ -18,14 +18,14 @@
  * Pin Definitions
  */
 // LV8401V Driver Pins
-#define M1_IN1_PIN 33
-#define M1_IN2_PIN 32
-#define M2_IN1_PIN 23
-#define M2_IN2_PIN 19
-#define M3_IN1_PIN 22
-#define M3_IN2_PIN 21
-#define M4_IN1_PIN 25
-#define M4_IN2_PIN 26
+#define M1_IN1_PIN 19
+#define M1_IN2_PIN 23
+#define M2_IN1_PIN 25
+#define M2_IN2_PIN 26
+#define M3_IN1_PIN 32
+#define M3_IN2_PIN 33
+#define M4_IN1_PIN 22
+#define M4_IN2_PIN 21
 // Vive Pins
 #define VIVE_F_PIN 36
 #define VIVE_R_PIN 39
@@ -178,6 +178,20 @@ void handleSpeedZeroButtonHit() {
 }
 
 /**
+ * Set offsets button press handler.
+ */
+void handleSetOffsetsButtonHit() {
+    String str = h.getText();
+    float x = str.substring(0, 4).toFloat() / 1.0e3;
+    float y = str.substring(5, 9).toFloat() / 1.0e3;
+    float q = str.substring(10).toFloat() * M_PI / 180.0;
+    apc.setOffsets(x, y, q);
+    if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleSetOffsetsButtonHit");
+    h.sendplain("");
+}
+
+
+/**
  * Set destination button press handler.
  */
 void handleSetDestinationButtonHit() {
@@ -243,6 +257,7 @@ void setup() {
     h.attachHandler("/spd_dwn_btn_hit", handleSpeedDownButtonHit);
     h.attachHandler("/spd_full_btn_hit", handleSpeedFullButtonHit);
     h.attachHandler("/spd_zero_btn_hit", handleSpeedZeroButtonHit);
+    h.attachHandler("/offsets?val=", handleSetOffsetsButtonHit);
     h.attachHandler("/destination?val=", handleSetDestinationButtonHit);
     h.attachHandler("/gains?val=", handleSetGainsButtonHit);
     

@@ -211,6 +211,25 @@ const char body[] PROGMEM = R"===(
                             <div class="row">
                                 <div class="btn_div" style="width: 33%;">
                                     <div class="row">
+                                        <label for="x_offset_input">X:</label>
+                                        <input type="number" class="field info" id="x_offset_input" min="0" max="9999" value="4000">
+                                    </div>
+                                    <div class="row">
+                                        <label for="y_offset_input">Y:</label>
+                                        <input type="number" class="field info" id="y_offset_input" min="0" max="9999" value="4000">
+                                    </div>
+                                    <div class="row">
+                                        <label for="q_offset_input">Q:</label>
+                                        <input type="number" class="field info" id="q_offset_input" min="0" max="360" value="180">
+                                    </div>
+                                    <div class="row">
+                                        <div class="btn_div" style="width: 50%;">
+                                            <button class="button info" id="set_dest_btn" onmousedown="set_offset_btn_hit()">Set Offsets</button>
+                                        </div>
+                                    </div>        
+                                </div>
+                                <div class="btn_div" style="width: 33%;">
+                                    <div class="row">
                                         <label for="x_pos_input">X:</label>
                                         <input type="number" class="field info" id="x_pos_input" min="0" max="9999" value="4000">
                                     </div>
@@ -331,6 +350,17 @@ const char body[] PROGMEM = R"===(
             xhttp.send();
         }
         // Autonomous Button Hits
+        function set_offset_btn_hit() {
+            var xhttp = new XMLHttpRequest();
+            var xval = ("000" + document.getElementById('x_offset_input').value).slice(-4);
+            var yval = ("000" + document.getElementById('y_offset_input').value).slice(-4);
+            var qval = ("000" + document.getElementById('q_offset_input').value).slice(-3);
+            var offsets = xval + "," + yval + "," + qval;
+            var str = "offsets?val=";
+            var res = str.concat(offsets);
+            xhttp.open("GET", res, true);
+            xhttp.send();
+        }
         function set_dest_btn_hit() {
             var xhttp = new XMLHttpRequest();
             var xval = ("000" + document.getElementById('x_pos_input').value).slice(-4);
