@@ -71,9 +71,9 @@ class APC
             Vive510& vive,
             float xOffset = 0.0,
             float yOffset = 0.0,
-            float kpTrans = 1.0,
-            float kdTrans = 0.2,
-            float epsilonT = 0.02);
+            float kpTrans = 3.0,
+            float kdTrans = 1.0,
+            float epsilonT = 0.05);
         
         /**
          * Constructor for APC with position and orientation.
@@ -97,12 +97,12 @@ class APC
             float xOffset = 0.0,
             float yOffset = 0.0,
             float qOffset = 0.0,
-            float kpTrans = 1.0,
-            float kdTrans = 0.2,
-            float kpRot = 0.7,
-            float kdRot = 0.15,
-            float epsilonT = 0.02,
-            float epsilonR = 0.17);
+            float kpTrans = 3.0,
+            float kdTrans = 1.0,
+            float kpRot = 0.6,
+            float kdRot = 0.2,
+            float epsilonT = 0.05,
+            float epsilonR = 0.2);
 
         /**
          * Sets base destination pose..

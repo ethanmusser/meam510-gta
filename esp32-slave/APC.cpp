@@ -163,20 +163,23 @@ void APC::disableRotation()
 
 Pose2D APC::getPose() 
 {
-    computePose();
+    if(millis() - _previousUpdateTime > 50) {
+        computePose();
+    }
     return _currentPose;
 }
 
 Twist2D APC::getTwist() 
 {
-    computePose();
+    if(millis() - _previousUpdateTime > 50) {
+        computePose();
+    }
     return _currentTwist;
 }
 
 void APC::computePose()
 {
     // Get Vive Pose(s)
-    Pose2D frontVivePose, rearVivePose;
     if(_frontVive->status() == VIVE_LOCKEDON) {
         _frontVivePose.x = ((float) _frontVive->xCoord()) / 1.0e3;
         _frontVivePose.y = ((float) _frontVive->yCoord()) / 1.0e3;
@@ -221,13 +224,13 @@ Twist2D APC::computeBaseControl(Pose2D currentPose,
 {
     Twist2D control;
     if(_transControlEnabled) {
-        control.vx = computeControl(currentPose.x, currentTwist.vx, 
+        control.vx = -computeControl(currentPose.x, currentTwist.vx, 
                 desiredPose.x, transGains);
-        control.vy = computeControl(currentPose.y, currentTwist.vy, 
+        control.vy = -computeControl(currentPose.y, currentTwist.vy, 
                 desiredPose.y, transGains);
     }
     if(_hasRearVive && _rotControlEnabled) {
-        control.vtheta = computeControl(currentPose.theta, currentTwist.vtheta, 
+        control.vtheta = -computeControl(currentPose.theta, currentTwist.vtheta, 
                 desiredPose.theta, rotGains);
     }
     return control;
@@ -276,6 +279,6 @@ float APC::wrapAngle(float angle,
     if(angle < 0.0) {
         angle += range;
     }
-    return angle - lower;
+    return angle + lower;
 }
 
