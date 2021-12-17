@@ -34,18 +34,26 @@ struct Gains {
     float kd;
 };
 
+struct Epsilons {
+    float epsilonT;
+    float epsilonR;
+};
+
 /**
  * Absolute positioning controller (APC) class.
  */
 class APC 
 {
     public:
-        Gains _gains;
-        float _epsilon;
+        Gains _transGains;
+        Gains _rotGains;
+        Epsilons _epsilons;
         Pose2D _currentPose;
         Twist2D _currentTwist;
         Pose2D _desiredPose;
         Pose2D _previousPose;
+        Pose2D _frontVivePose;
+        Pose2D _rearVivePose;
         unsigned long _previousUpdateTime;
 
         /**
@@ -55,19 +63,17 @@ class APC
          * @param vive      Vive sensor mounted to mobile base.
          * @param xOffset   Origin offset from vive x-position in meters.
          * @param yOffset   Origin offset from vive y-position in meters.
-         * @param kp        Proportional gain.
-         * @param ki        Integral gain.
-         * @param kd        Derivative gain.
-         * @param epsilon   Allowable norm state error.
+         * @param kpTrans   Translational proportional gain.
+         * @param kdTrans   Translational derivative gain.
+         * @param epsilonT  Allowable norm translational state error.
          */
         APC(MecanumBase& base,
             Vive510& vive,
             float xOffset = 0.0,
             float yOffset = 0.0,
-            float kp = 1.0,
-            float ki = 0.0,
-            float kd = 0.2,
-            float epsilon = 0.02);
+            float kpTrans = 1.0,
+            float kdTrans = 0.2,
+            float epsilonT = 0.02);
         
         /**
          * Constructor for APC with position and orientation.
@@ -78,10 +84,12 @@ class APC
          * @param xOffset   Origin offset from front vive x-position in meters.
          * @param yOffset   Origin offset from front vive y-position in meters.
          * @param qOffset   Angular offset from vive-to-vive axis in radians.
-         * @param kp        Proportional gain.
-         * @param ki        Integral gain.
-         * @param kd        Derivative gain.
-         * @param epsilon   Allowable norm state error.
+         * @param kpTrans   Translational proportional gain.
+         * @param kdTrans   Translational derivative gain.
+         * @param kpRot     Rotational proportional gain.
+         * @param kdRot     Rotational derivative gain.
+         * @param epsilonT  Allowable norm translational state error.
+         * @param epsilonR  Allowable rotational state error.
          */
         APC(MecanumBase& base,
             Vive510& frontVive, 
@@ -89,10 +97,12 @@ class APC
             float xOffset = 0.0,
             float yOffset = 0.0,
             float qOffset = 0.0,
-            float kp = 1.0,
-            float ki = 0.0,
-            float kd = 0.2,
-            float epsilon = 0.02);
+            float kpTrans = 1.0,
+            float kdTrans = 0.2,
+            float kpRot = 0.7,
+            float kdRot = 0.15,
+            float epsilonT = 0.02,
+            float epsilonR = 0.17);
 
         /**
          * Sets base destination pose..
@@ -126,20 +136,40 @@ class APC
         /**
          * Sets APC control gains.
          * 
+         * @param kpTrans   Translational proportional gain.
+         * @param kdTrans   Translational derivative gain.
+         * @param kpRot     Rotational proportional gain.
+         * @param kdRot     Rotational derivative gain.
+         */
+        void setGains(float kpTrans = 1.0,
+                      float kdTrans = 0.2,
+                      float kpRot = 0.7,
+                      float kdRot = 0.15);
+        /**
+         * Sets APC control gains for translational motion.
+         * 
          * @param kp    Proportional gain.
-         * @param ki    Integral gain.
          * @param kd    Derivative gain.
          */
-        void setGains(float kp = 1.0,
-                      float ki = 0.0,
-                      float kd = 0.2);
+        void setTranslationalGains(float kp = 1.0,
+                                   float kd = 0.2);
 
         /**
-         * Set positional error tolerance.
+         * Sets APC control gains for rotational motion.
          * 
-         * @param epsilon   Error tolerance in meters.
+         * @param kp    Proportional gain.
+         * @param kd    Derivative gain.
          */
-        void setEpsilon(float epsilon = 0.02);
+        void setRotationalGains(float kp = 1.0,
+                                float kd = 0.2);
+
+        /**
+         * Set error tolerances.
+         * 
+         * @param epsilonT   Error tolerance in meters.
+         */
+        void setEpsilons(float epsilonT = 0.02,
+                         float epsilonR = 0.17);
 
         /**
          * Updates controller 
@@ -152,9 +182,43 @@ class APC
         void enable();
         
         /**
+         * Enables translational absolute position control.
+         */
+        void enableTranslation();
+        
+        /**
+         * Enables rotational absolute position control.
+         */
+        void enableRotation();
+        
+        /**
          * Disables absolute position control.
          */
         void disable();
+
+        /**
+         * Disables translational absolute position control.
+         */
+        void disableTranslation();
+        
+        /**
+         * Disables rotational absolute position control.
+         */
+        void disableRotation();
+        
+        /**
+         * Computes and returns the current base pose.
+         * 
+         * @return Base pose as a Pose2D.
+         */
+        Pose2D getPose();
+        
+        /**
+         * Computes and returns the current base twist.
+         * 
+         * @return Base pose as a Twist2D.
+         */
+        Twist2D getTwist();
         
     protected:
 
@@ -165,6 +229,8 @@ class APC
         Pose2D _offsets;
         bool _hasRearVive;
         bool _isEnabled;
+        bool _transControlEnabled;
+        bool _rotControlEnabled;
 
         /**
          * Computes current pose from vive sensor(s).
@@ -177,12 +243,30 @@ class APC
          * @param currentPose   Current pose.
          * @param currentTwist  Current twist.
          * @param desiredPose   Desired pose.
-         * @param gains         Contorller gains.
+         * @param transGains    Translational contorller gains.
+         * @param rotGains      Rotational contorller gains.
+         * @return              Control twist.
          */
-        Twist2D computeControl(Pose2D currentPose,
-                               Twist2D currentTwist,
-                               Pose2D desiredPose,
-                               Gains gains);
+        Twist2D computeBaseControl(Pose2D currentPose,
+                                   Twist2D currentTwist,
+                                   Pose2D desiredPose,
+                                   Gains transGains,
+                                   Gains rotGains);
+
+        /**
+         * Compute control input to base.
+         * 
+         * @param currentPosition   Current position.
+         * @param currentVelocity   Current velocity.
+         * @param desiredPosition   Desired position.
+         * @param gains             Controller gains.
+         * @return                  Control velocity.
+         */
+        float computeControl(float currentPosition,
+                             float currentVelocity,
+                             float desiredPosition,
+                             Gains gains);
+
 
         /**
          * Returns the error between two poses.
@@ -200,7 +284,15 @@ class APC
          * @param pose  Pose.
          * @return Euclidean norm of pose states.
          */
-        float computeNorm(Pose2D pose);
+        float computeTotalNorm(Pose2D pose);
+        
+        /**
+         * Returns the Euclidean norm of a set of pose translational states.
+         * 
+         * @param pose  Pose.
+         * @return Euclidean norm of pose translational states.
+         */
+        float computeTranslationalNorm(Pose2D pose);
         
         /**
          * Wraps angle to specified range.  

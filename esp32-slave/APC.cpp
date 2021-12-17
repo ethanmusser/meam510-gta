@@ -16,15 +16,15 @@ APC::APC(MecanumBase& base,
          Vive510& vive,
          float xOffset,
          float yOffset,
-         float kp,
-         float ki,
-         float kd,
-         float epsilon)
+         float kpTrans,
+         float kdTrans,
+         float epsilonT)
     : _base(&base),
       _frontVive(&vive),
       _offsets{xOffset, yOffset, 0.0},
-      _gains{kp, ki, kd},
-      _epsilon(epsilon),
+      _transGains{kpTrans, kdTrans},
+      _rotGains{0.0, 0.0},
+      _epsilons{epsilonT, 0.0},
       _hasRearVive(false)
 {}
 
@@ -34,22 +34,24 @@ APC::APC(MecanumBase& base,
          float xOffset,
          float yOffset,
          float qOffset,
-         float kp,
-         float ki,
-         float kd,
-         float epsilon)
+         float kpTrans,
+         float kdTrans,
+         float kpRot,
+         float kdRot,
+         float epsilonT,
+         float epsilonR)
     : _base(&base),
       _frontVive(&frontVive),
       _rearVive(&rearVive),
-      _offsets{xOffset, yOffset, qOffset},
-      _gains{kp, ki, kd},
-      _epsilon(epsilon),
+      _offsets{xOffset, yOffset, 0.0},
+      _transGains{kpTrans, kdTrans},
+      _rotGains{kpRot, kdRot},
+      _epsilons{epsilonT, epsilonR},
       _hasRearVive(true)
 {}
 
 void APC::setDestination(Pose2D pose)
 {
-    enable();
     _desiredPose = pose;
 }
 
@@ -57,7 +59,6 @@ void APC::setDestination(float x,
                          float y,
                          float theta)
 {
-    enable();
     _desiredPose.x = x;
     _desiredPose.y = y;
     _desiredPose.theta = theta;
@@ -72,32 +73,56 @@ void APC::setOffsets(float xOffset,
     _offsets.theta = qOffset;
 }
 
-void APC::setGains(float kp,
-                   float ki,
-                   float kd)
+void APC::setGains(float kpTrans,
+                   float kdTrans,
+                   float kpRot,
+                   float kdRot)
 {
-    _gains.kp = kp;
-    _gains.ki = ki;
-    _gains.kd = kd;
+    setTranslationalGains(kpTrans, kdTrans);
+    setRotationalGains(kpRot, kdRot);
 }
 
-void APC::setEpsilon(float epsilon)
+void APC::setTranslationalGains(float kp,
+                                float kd)
 {
-    _epsilon = epsilon;
+    _transGains.kp = kp;
+    _transGains.kd = kd;
+}
+
+void APC::setRotationalGains(float kp,
+                             float kd)
+{
+    _rotGains.kp = kp;
+    _rotGains.kd = kd;
+}
+
+void APC::setEpsilons(float epsilonT,
+                      float epsilonR)
+{
+    _epsilons.epsilonT = epsilonT;
+    _epsilons.epsilonR = epsilonR;
 }
 
 void APC::update()
 {
+    // Compute Current Pose 
     computePose();
-    if(_isEnabled){
-        if( computeNorm(_currentPose) <= _epsilon ) {
+    Pose2D error = computeError(_currentPose, _desiredPose);
+    float transNormError = computeTranslationalNorm(error);
+
+    // Control Inputs
+    if(_transControlEnabled || _rotControlEnabled){
+        if(transNormError <= _epsilons.epsilonT && error.theta <= _epsilons.epsilonR) {
             disable();
         } else {
-            // Compute Control Input
-            Twist2D control = computeControl(_currentPose, _currentTwist, 
-                    _desiredPose, _gains);
-
-            // Drive Base
+            Twist2D control = computeBaseControl(_currentPose, _currentTwist, 
+                    _desiredPose, _transGains, _rotGains);
+            if(transNormError <= _epsilons.epsilonT) {
+                control.vx = 0.0;
+                control.vy = 0.0;
+            } else if(error.theta <= _epsilons.epsilonR) {
+                control.vtheta = 0.0;
+            }
             _base->driveCartesian(control.vx, control.vy, control.vtheta);
         }
     }
@@ -105,13 +130,47 @@ void APC::update()
 
 void APC::enable()
 {
-    _isEnabled = true;
+    enableTranslation();
+    enableRotation();
+}
+
+void APC::enableTranslation()
+{
+    _transControlEnabled = true;
+}
+
+void APC::enableRotation()
+{
+    _rotControlEnabled = true;
 }
 
 void APC::disable()
 {
-    _isEnabled = false;
-    _base->brake();
+    disableTranslation();
+    disableRotation();
+    _base->stop();
+}
+
+void APC::disableTranslation()
+{
+    _transControlEnabled = false;
+}
+
+void APC::disableRotation()
+{
+    _rotControlEnabled = false;
+}
+
+Pose2D APC::getPose() 
+{
+    computePose();
+    return _currentPose;
+}
+
+Twist2D APC::getTwist() 
+{
+    computePose();
+    return _currentTwist;
 }
 
 void APC::computePose()
@@ -119,15 +178,15 @@ void APC::computePose()
     // Get Vive Pose(s)
     Pose2D frontVivePose, rearVivePose;
     if(_frontVive->status() == VIVE_LOCKEDON) {
-        frontVivePose.x = ((float) _frontVive->xCoord()) / 1.0e3;
-        frontVivePose.y = ((float) _frontVive->yCoord()) / 1.0e3;
+        _frontVivePose.x = ((float) _frontVive->xCoord()) / 1.0e3;
+        _frontVivePose.y = ((float) _frontVive->yCoord()) / 1.0e3;
     } else {
         _frontVive->sync(5);
     }
     if(_hasRearVive) {
         if(_rearVive->status() == VIVE_LOCKEDON) {
-            rearVivePose.x = ((float) _rearVive->xCoord()) / 1.0e3;
-            rearVivePose.y = ((float) _rearVive->yCoord()) / 1.0e3;
+            _rearVivePose.x = ((float) _rearVive->xCoord()) / 1.0e3;
+            _rearVivePose.y = ((float) _rearVive->yCoord()) / 1.0e3;
         } else {
             _rearVive->sync(5);
         }
@@ -135,10 +194,10 @@ void APC::computePose()
 
     // Compute Base Pose
     _previousPose = _currentPose;
-    _currentPose.x = frontVivePose.x - _offsets.x;
-    _currentPose.y = frontVivePose.y - _offsets.y;
+    _currentPose.x = _frontVivePose.x - _offsets.x;
+    _currentPose.y = _frontVivePose.y - _offsets.y;
     if(_hasRearVive) {
-        Pose2D viveDiff = computeError(frontVivePose, rearVivePose);
+        Pose2D viveDiff = computeError(_frontVivePose, _rearVivePose);
         float angle = atan2(viveDiff.y, viveDiff.x);
         _currentPose.theta = wrapAngle(angle);
     }
@@ -154,22 +213,33 @@ void APC::computePose()
     }
 }
 
-Twist2D APC::computeControl(Pose2D currentPose, 
-                            Twist2D currentTwist,
-                            Pose2D desiredPose, 
-                            Gains gains)
+Twist2D APC::computeBaseControl(Pose2D currentPose,
+                                Twist2D currentTwist,
+                                Pose2D desiredPose,
+                                Gains transGains,
+                                Gains rotGains)
 {
-    // Compute Error
-    Pose2D error = computeError(currentPose, desiredPose);
-
-    // Compute Control Input
     Twist2D control;
-    control.vx = gains.kp * error.x + gains.kd * currentTwist.vx;
-    control.vy = gains.kp * error.y + gains.kd * currentTwist.vy;
-    if(_hasRearVive) {
-        control.vtheta = gains.kp * error.theta - gains.kd * currentTwist.vtheta;
+    if(_transControlEnabled) {
+        control.vx = computeControl(currentPose.x, currentTwist.vx, 
+                desiredPose.x, transGains);
+        control.vy = computeControl(currentPose.y, currentTwist.vy, 
+                desiredPose.y, transGains);
+    }
+    if(_hasRearVive && _rotControlEnabled) {
+        control.vtheta = computeControl(currentPose.theta, currentTwist.vtheta, 
+                desiredPose.theta, rotGains);
     }
     return control;
+}
+
+float APC::computeControl(float currentPosition,
+                          float currentVelocity,
+                          float desiredPosition,
+                          Gains gains)
+{
+    float error = currentPosition - desiredPosition;
+    return -gains.kp * error - gains.kd * currentVelocity;
 }
 
 Pose2D APC::computeError(Pose2D current,
@@ -187,13 +257,14 @@ Pose2D APC::computeError(Pose2D current,
     return error;
 }
 
-float APC::computeNorm(Pose2D pose)
+float APC::computeTotalNorm(Pose2D pose)
 {
-    if(!_hasRearVive) {
-        return sqrt(pow(pose.x, 2) + pow(pose.y, 2));
-    } else {
-        return sqrt(pow(pose.x, 2) + pow(pose.y, 2) + pow(pose.theta, 2));
-    }
+    return sqrt(pow(pose.x, 2) + pow(pose.y, 2) + pow(pose.theta, 2));
+}
+
+float APC::computeTranslationalNorm(Pose2D pose)
+{
+    return sqrt(pow(pose.x, 2) + pow(pose.y, 2));
 }
 
 float APC::wrapAngle(float angle,
