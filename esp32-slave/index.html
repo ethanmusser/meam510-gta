@@ -269,6 +269,11 @@
                                     </div>        
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="btn_div" style="width: 100%;">
+                                    <button class="button danger" id="stop_auto_btn" onmousedown="stop_auto_btn_hit()">Stop Autonomous</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="block" title="blank_ctrl" style="width: 40%;">
@@ -383,6 +388,11 @@
             var str = "gains?val=";
             var res = str.concat(gains);
             xhttp.open("GET", res, true);
+            xhttp.send();
+        }
+        function stop_auto_btn_hit() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("GET", "stop_auto_btn_hit", true);
             xhttp.send();
         }
         // Location Outputs

@@ -47,6 +47,7 @@ const float rotationalSpeedFactor = 0.7;
 /**
  * Global Variables
  */
+unsigned int loopCount = 0;
 float baseSpeed = 0.8;
 
 /**
@@ -65,7 +66,8 @@ MecanumBase base(frontLeftMotor, frontRightMotor,
 Vive510 frontVive(VIVE_F_PIN);
 Vive510 rearVive(VIVE_R_PIN);
 // Absolute Position Control
-APC apc(base, frontVive, rearVive, 0.0, 0.0, M_PI_2, 1.0, 0.0, 0.2);
+// APC apc(base, frontVive, rearVive, 0.0, 0.0, M_PI_2);
+APC apc(base, frontVive, 0.0, 0.0, M_PI_2);
 
 
 /* -------------------------------------------------------------------------- */
@@ -178,6 +180,16 @@ void handleSpeedZeroButtonHit() {
 }
 
 /**
+ * Stop autonomous button press handler.
+ */
+void handleStopAutonomousButtonHit() {
+    apc.disable();
+    base.brake();
+    if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleSpeedZeroButtonHit");
+    h.sendplain("");
+}
+
+/**
  * Set offsets button press handler.
  */
 void handleSetOffsetsButtonHit() {
@@ -200,6 +212,7 @@ void handleSetDestinationButtonHit() {
     float y = str.substring(5, 9).toFloat() / 1.0e3;
     float q = str.substring(10).toFloat() * M_PI / 180.0;
     apc.setDestination(x, y, q);
+    apc.enable();
     if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleSetDestinationButtonHit");
     h.sendplain("");
 }
@@ -271,6 +284,7 @@ void setup() {
     h.attachHandler("/spd_dwn_btn_hit", handleSpeedDownButtonHit);
     h.attachHandler("/spd_full_btn_hit", handleSpeedFullButtonHit);
     h.attachHandler("/spd_zero_btn_hit", handleSpeedZeroButtonHit);
+    h.attachHandler("/stop_auto_btn_hit", handleStopAutonomousButtonHit);
     h.attachHandler("/offsets?val=", handleSetOffsetsButtonHit);
     h.attachHandler("/destination?val=", handleSetDestinationButtonHit);
     h.attachHandler("/gains?val=", handleSetGainsButtonHit);
@@ -296,7 +310,11 @@ void loop() {
     h.serve();
 
     // Update Base Control
-    apc.update();
+    if(loopCount >= 10) {
+        apc.update();
+        loopCount = 0;
+    }
+    loopCount++;
 
     // Wait
     delay(10);
