@@ -224,7 +224,7 @@ const char body[] PROGMEM = R"===(
                         <h3>Autonomous</h3>
                         <div class="btn_panel">
                             <div class="row">
-                                <div class="btn_div" style="width: 33%;">
+                                <div class="btn_div" style="width: 25%;">
                                     <div class="row">
                                         <label for="x_offset_input">X:</label>
                                         <input type="number" class="field info" id="x_offset_input" min="0" max="9999" value="4000">
@@ -243,7 +243,7 @@ const char body[] PROGMEM = R"===(
                                         </div>
                                     </div>        
                                 </div>
-                                <div class="btn_div" style="width: 33%;">
+                                <div class="btn_div" style="width: 25%;">
                                     <div class="row">
                                         <label for="x_pos_input">X:</label>
                                         <input type="number" class="field info" id="x_pos_input" min="0" max="9999" value="4000">
@@ -262,18 +262,26 @@ const char body[] PROGMEM = R"===(
                                         </div>
                                     </div>        
                                 </div>
-                                <div class="btn_div" style="width: 33%;">
-                                    <div class="row">
-                                        <label for="p_gain_input">Kp:</label>
-                                        <input type="number" class="field info" id="p_gain_input" step="0.01" min="0" max="9.99" value="1">
+                                <div class="btn_div" style="width: 50%;">
+                                    <div class="btn_div" style="width: 50%;">
+                                        <div class="row">
+                                            <label for="p_gain_input">Kp-T:</label>
+                                            <input type="number" class="field info" id="p_trans_gain_input" step="0.01" min="0" max="9.99" value="1.0">
+                                        </div>
+                                        <div class="row">
+                                            <label for="d_gain_input">Kd-T:</label>
+                                            <input type="number" class="field info" id="d_trans_gain_input" step="0.01" min="0" max="10" value="0.2">
+                                        </div>
                                     </div>
-                                    <div class="row">
-                                        <label for="i_gain_input">Ki:</label>
-                                        <input type="number" class="field info" id="i_gain_input" step="0.01" min="0" max="9.99" value="0">
-                                    </div>
-                                    <div class="row">
-                                        <label for="d_gain_input">Kd:</label>
-                                        <input type="number" class="field info" id="d_gain_input" step="0.01" min="0" max="10" value="0.2">
+                                    <div class="btn_div" style="width: 50%;">
+                                        <div class="row">
+                                            <label for="p_gain_input">Kp-R:</label>
+                                            <input type="number" class="field info" id="p_rot_gain_input" step="0.01" min="0" max="9.99" value="0.6">
+                                        </div>
+                                        <div class="row">
+                                            <label for="d_gain_input">Kd-R:</label>
+                                            <input type="number" class="field info" id="d_rot_gain_input" step="0.01" min="0" max="10" value="0.15">
+                                        </div>
                                     </div>
                                     <div class="row">
                                         <div class="btn_div" style="width: 50%;">
@@ -394,10 +402,11 @@ const char body[] PROGMEM = R"===(
         }
         function set_gain_btn_hit() {
             var xhttp = new XMLHttpRequest();
-            var kpval = parseFloat(document.getElementById('p_gain_input').value).toFixed(2);
-            var kival = parseFloat(document.getElementById('i_gain_input').value).toFixed(2);
-            var kdval = parseFloat(document.getElementById('d_gain_input').value).toFixed(2);
-            var gains = kpval + "," + kival + "," + kdval;
+            var kptval = parseFloat(document.getElementById('p_trans_gain_input').value).toFixed(2);
+            var kdtval = parseFloat(document.getElementById('d_trans_gain_input').value).toFixed(2);
+            var kprval = parseFloat(document.getElementById('p_rot_gain_input').value).toFixed(2);
+            var kdrval = parseFloat(document.getElementById('d_rot_gain_input').value).toFixed(2);
+            var gains = kptval + "," + kdtval + "," + kprval + "," + kdrval;
             var str = "gains?val=";
             var res = str.concat(gains);
             xhttp.open("GET", res, true);

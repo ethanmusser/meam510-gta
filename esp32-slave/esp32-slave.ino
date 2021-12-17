@@ -66,8 +66,10 @@ MecanumBase base(frontLeftMotor, frontRightMotor,
 Vive510 frontVive(VIVE_F_PIN);
 Vive510 rearVive(VIVE_R_PIN);
 // Absolute Position Control
-// APC apc(base, frontVive, rearVive, 0.0, 0.0, M_PI_2);
-APC apc(base, frontVive, 0.0, 0.0, M_PI_2);
+APC apc(base, frontVive, rearVive, 
+        0.0, 0.0, M_PI_2,
+        1.0, 0.2, 0.6, 0.15,
+        0.02, 0.17);
 
 
 /* -------------------------------------------------------------------------- */
@@ -222,10 +224,11 @@ void handleSetDestinationButtonHit() {
  */
 void handleSetGainsButtonHit() {
     String str = h.getText();
-    float kp = str.substring(0, 4).toFloat() / 1.0e3;
-    float ki = str.substring(5, 9).toFloat() / 1.0e3;
-    float kd = str.substring(10).toFloat() * M_PI / 180.0;
-    apc.setGains(kp, ki, kd);
+    float kpTrans = str.substring(0, 4).toFloat();
+    float kdTrans = str.substring(5, 9).toFloat();
+    float kpRot = str.substring(10, 14).toFloat();
+    float kdRot = str.substring(15).toFloat();
+    apc.setGains(kpTrans, kdTrans, kpRot, kdRot);
     if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleSetGainsButtonHit");
     h.sendplain("");
 }
@@ -310,7 +313,7 @@ void loop() {
     h.serve();
 
     // Update Base Control
-    if(loopCount >= 10) {
+    if(loopCount >= 20) {
         apc.update();
         loopCount = 0;
     }
