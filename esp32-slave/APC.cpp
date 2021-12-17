@@ -49,7 +49,7 @@ APC::APC(MecanumBase& base,
 
 void APC::setDestination(Pose2D pose)
 {
-    _isEnabled = true;
+    enable();
     _desiredPose = pose;
 }
 
@@ -57,7 +57,7 @@ void APC::setDestination(float x,
                          float y,
                          float theta)
 {
-    _isEnabled = true;
+    enable();
     _desiredPose.x = x;
     _desiredPose.y = y;
     _desiredPose.theta = theta;
@@ -103,6 +103,11 @@ void APC::update()
     }
 }
 
+void APC::enable()
+{
+    _isEnabled = true;
+}
+
 void APC::disable()
 {
     _isEnabled = false;
@@ -113,11 +118,19 @@ void APC::computePose()
 {
     // Get Vive Pose(s)
     Pose2D frontVivePose, rearVivePose;
-    frontVivePose.x = ((float) _frontVive->xCoord()) / 1.0e3;
-    frontVivePose.y = ((float) _frontVive->yCoord()) / 1.0e3;
+    if(_frontVive->status() == VIVE_LOCKEDON) {
+        frontVivePose.x = ((float) _frontVive->xCoord()) / 1.0e3;
+        frontVivePose.y = ((float) _frontVive->yCoord()) / 1.0e3;
+    } else {
+        _frontVive->sync(5);
+    }
     if(_hasRearVive) {
-        rearVivePose.x = ((float) _rearVive->xCoord()) / 1.0e3;
-        rearVivePose.y = ((float) _rearVive->yCoord()) / 1.0e3;
+        if(_rearVive->status() == VIVE_LOCKEDON) {
+            rearVivePose.x = ((float) _rearVive->xCoord()) / 1.0e3;
+            rearVivePose.y = ((float) _rearVive->yCoord()) / 1.0e3;
+        } else {
+            _rearVive->sync(5);
+        }
     }
 
     // Compute Base Pose
@@ -127,7 +140,7 @@ void APC::computePose()
     if(_hasRearVive) {
         Pose2D viveDiff = computeError(frontVivePose, rearVivePose);
         float angle = atan2(viveDiff.y, viveDiff.x);
-        _currentPose.theta = angle >= 0.0 ? angle : angle + 2.0 * M_PI;
+        _currentPose.theta = wrapAngle(angle);
     }
 
     // Compute Base Twist
@@ -136,7 +149,9 @@ void APC::computePose()
     _previousUpdateTime = currentTime;
     _currentTwist.vx = (_currentPose.x - _previousPose.x) / dt;
     _currentTwist.vy = (_currentPose.y - _previousPose.y) / dt;
-    _currentTwist.vtheta = (_currentPose.theta - _previousPose.theta) / dt;
+    if(_hasRearVive) {
+        _currentTwist.vtheta = (_currentPose.theta - _previousPose.theta) / dt;
+    }
 }
 
 Twist2D APC::computeControl(Pose2D currentPose, 
@@ -149,12 +164,11 @@ Twist2D APC::computeControl(Pose2D currentPose,
 
     // Compute Control Input
     Twist2D control;
-    control.vx = gains.kp * (currentPose.x - desiredPose.x) 
-            + gains.kd * currentTwist.vx;
-    control.vy = gains.kp * (currentPose.y - desiredPose.y)
-            + gains.kd * currentTwist.vy;
-    control.vtheta = gains.kp * (currentPose.theta - desiredPose.theta)
-            + gains.kd * currentTwist.vtheta;
+    control.vx = gains.kp * error.x + gains.kd * currentTwist.vx;
+    control.vy = gains.kp * error.y + gains.kd * currentTwist.vy;
+    if(_hasRearVive) {
+        control.vtheta = gains.kp * error.theta - gains.kd * currentTwist.vtheta;
+    }
     return control;
 }
 
@@ -165,7 +179,7 @@ Pose2D APC::computeError(Pose2D current,
     current.theta = wrapAngle(current.theta);
     desired.theta = wrapAngle(desired.theta);
 
-    // Compue Error
+    // Compute Error
     Pose2D error;
     error.x = current.x - desired.x;
     error.y = current.y - desired.y;
@@ -175,7 +189,11 @@ Pose2D APC::computeError(Pose2D current,
 
 float APC::computeNorm(Pose2D pose)
 {
-    return sqrt(pow(pose.x, 2) + pow(pose.y, 2) + pow(pose.theta, 2));
+    if(!_hasRearVive) {
+        return sqrt(pow(pose.x, 2) + pow(pose.y, 2));
+    } else {
+        return sqrt(pow(pose.x, 2) + pow(pose.y, 2) + pow(pose.theta, 2));
+    }
 }
 
 float APC::wrapAngle(float angle,

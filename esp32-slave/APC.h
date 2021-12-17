@@ -147,6 +147,11 @@ class APC
         void update();
         
         /**
+         * Enables absolute position control.
+         */
+        void enable();
+        
+        /**
          * Disables absolute position control.
          */
         void disable();
