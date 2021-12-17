@@ -63,6 +63,20 @@ void APC::setDestination(float x,
     _desiredPose.theta = theta;
 }
 
+void APC::setGains(float kp,
+                   float ki,
+                   float kd)
+{
+    _gains.kp = kp;
+    _gains.ki = ki;
+    _gains.kd = kd;
+}
+
+void APC::setEpsilon(float epsilon)
+{
+    _epsilon = epsilon;
+}
+
 void APC::update()
 {
     computePose();

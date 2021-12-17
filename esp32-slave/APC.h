@@ -113,6 +113,24 @@ class APC
                             float theta = 0.0);
 
         /**
+         * Sets APC control gains.
+         * 
+         * @param kp    Proportional gain.
+         * @param ki    Integral gain.
+         * @param kd    Derivative gain.
+         */
+        void setGains(float kp = 1.0,
+                      float ki = 0.0,
+                      float kd = 0.2);
+
+        /**
+         * Set positional error tolerance.
+         * 
+         * @param epsilon   Error tolerance in meters.
+         */
+        void setEpsilon(float epsilon = 0.02);
+
+        /**
          * Updates controller 
          */
         void update();
