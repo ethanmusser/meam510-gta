@@ -113,6 +113,17 @@ class APC
                             float theta = 0.0);
 
         /**
+         * Sets base offsets.
+         * 
+         * @param xOffset   X offset in meters.
+         * @param yOffset   Y offset in meters.
+         * @param qOffset   Theta offset in meters.
+         */
+        void setOffsets(float xOffset,
+                        float yOffset,
+                        float qOffset);
+
+        /**
          * Sets APC control gains.
          * 
          * @param kp    Proportional gain.

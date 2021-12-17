@@ -63,6 +63,15 @@ void APC::setDestination(float x,
     _desiredPose.theta = theta;
 }
 
+void APC::setOffsets(float xOffset,
+                     float yOffset,
+                     float qOffset)
+{
+    _offsets.x = xOffset;
+    _offsets.y = yOffset;
+    _offsets.theta = qOffset;
+}
+
 void APC::setGains(float kp,
                    float ki,
                    float kd)
