@@ -139,6 +139,21 @@
                         </div>
                     </div>
                 </div>
+                <div class="row" title="location">
+                    <div class="block" title="location" style="width: 50%;">
+                        <h3>Location</h3>
+                        <div class="row">
+                            <div class="motor_block">
+                                <h4>Current</h4>
+                                <span id="cur_pos_output"></span>
+                            </div>
+                            <div class="motor_block">
+                                <h4>Desired</h4>
+                                <span id="des_pos_output"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="section" title="control" style="width: auto;">
                 <div class="row" title="movement_and_speed">
@@ -367,6 +382,33 @@
             var gains = kpval + "," + kival + "," + kdval;
             var str = "gains?val=";
             var res = str.concat(gains);
+            xhttp.open("GET", res, true);
+            xhttp.send();
+        }
+        // Location Outputs
+        setInterval(get_cur_pos, 200);
+        setInterval(get_des_pos, 200);
+        function get_cur_pos() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById("cur_pos_output").innerHTML = this.responseText;
+                }
+            };
+            var str = "cur_pos?val=";
+            var res = str.concat(this.value);
+            xhttp.open("GET", res, true);
+            xhttp.send();
+        }
+        function get_des_pos() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById("des_pos_output").innerHTML = this.responseText;
+                }
+            };
+            var str = "des_pos?val=";
+            var res = str.concat(this.value);
             xhttp.open("GET", res, true);
             xhttp.send();
         }

@@ -218,13 +218,27 @@ void handleSetGainsButtonHit() {
 }
 
 /**
- * Direction state update handler.
+ * Current position update handler.
  */
-void handle_direction_state() {
-    // TODO: Implement
-    // String s = direction ? "Forward" : "Reverse";
-    String s = "";
-    h.sendplain(s);
+void handleGetCurrentPosition() {
+    int x = (int) (apc._currentPose.x * 1.0e3);
+    int y = (int) (apc._currentPose.y * 1.0e3);
+    int theta = (int) (apc._currentPose.theta * 180.0 / M_PI);
+    String str = "x = " + String(x) + "mm\ny = " + String(y) + " mm\nq = " + String(theta) + " deg\n";
+    if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleGetCurrentPosition");
+    h.sendplain(str);
+}
+
+/**
+ * Desired position update handler.
+ */
+void handleGetDesiredPosition() {
+    int x = (int) (apc._desiredPose.x * 1.0e3);
+    int y = (int) (apc._desiredPose.y * 1.0e3);
+    int theta = (int) (apc._desiredPose.theta * 180.0 / M_PI);
+    String str = "x = " + String(x) + "mm\ny = " + String(y) + " mm\nq = " + String(theta) + " deg\n";
+    if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleGetDesiredPosition");
+    h.sendplain(str);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -260,6 +274,8 @@ void setup() {
     h.attachHandler("/offsets?val=", handleSetOffsetsButtonHit);
     h.attachHandler("/destination?val=", handleSetDestinationButtonHit);
     h.attachHandler("/gains?val=", handleSetGainsButtonHit);
+    h.attachHandler("/cur_pos?val=", handleGetCurrentPosition);
+    h.attachHandler("/des_pos?val=", handleGetDesiredPosition);
     
     // Motors
     frontLeftMotor.setup();
