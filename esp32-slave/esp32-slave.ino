@@ -18,14 +18,14 @@
  * Pin Definitions
  */
 // LV8401V Driver Pins
-#define M1_IN1_PIN 21
-#define M1_IN2_PIN 26
-#define M2_IN1_PIN 22
-#define M2_IN2_PIN 25
-#define M3_IN1_PIN 19
-#define M3_IN2_PIN 32
-#define M4_IN1_PIN 23
-#define M4_IN2_PIN 33
+#define M1_IN1_PIN 33
+#define M1_IN2_PIN 32
+#define M2_IN1_PIN 23
+#define M2_IN2_PIN 19
+#define M3_IN1_PIN 22
+#define M3_IN2_PIN 21
+#define M4_IN1_PIN 25
+#define M4_IN2_PIN 26
 // Vive Pins
 #define VIVE_F_PIN 36
 #define VIVE_R_PIN 39
