@@ -9,6 +9,8 @@
  * @version 0.1
  */
 
+#include <WiFi.h>
+#include <WiFiUdp.h>
 #include "indexJS.h"
 #include "html510.h"
 #include "MecanumBase.h"
@@ -24,8 +26,8 @@
 #define M2_IN2_PIN 26
 #define M3_IN1_PIN 32
 #define M3_IN2_PIN 33
-#define M4_IN1_PIN 22
-#define M4_IN2_PIN 21
+#define M4_IN1_PIN 5 
+#define M4_IN2_PIN 18
 // Vive Pins
 #define VIVE_F_PIN 36
 #define VIVE_R_PIN 39
@@ -33,26 +35,36 @@
 /**
  * Miscellaneous Definitions
  */
+#define APMODE 0
 #define DEBUGMODE 0
 #define SPEEDINC 25
 
 /**
  * Constants
  */
-const char* ssid = "Walrus";
-const char* password = "password";
+const char* ssid = "TP-Link_05AF";
+const char* password = "47543454";
+// const char* ssid = "Walrus";
+// const char* password = "password";
 const float speedAdjustmentFactor = 0.1;
 const float rotationalSpeedFactor = 0.7;
 
 /**
  * Global Variables
  */
-unsigned int loopCount = 0;
+unsigned int robotNumber = 1;
 float baseSpeed = 0.8;
 
 /**
  * Global Objects
  */
+// UDP
+WiFiUDP locationUDPServer;
+WiFiUDP canUDPServer;
+WiFiUDP robotUDPServer;
+IPAddress ipTarget(192, 168, 1, 255); // broadcast address to everyone at 192.168.1.xxx
+IPAddress ipLocal(192, 168, 0, 160);   // our IP address
+// Web Interface
 HTML510Server h(80);
 // LV8401V Driver MotorController
 MotorController frontLeftMotor(-1, M1_IN1_PIN, M1_IN2_PIN);
@@ -71,6 +83,46 @@ APC apc(base, frontVive, rearVive,
         1.0, 0.2, 0.6, 0.15,
         0.02, 0.17);
 
+
+/* -------------------------------------------------------------------------- */
+
+void fncUdpSend(char *datastr, int len) {
+    locationUDPServer.beginPacket(ipTarget, 2510);
+    locationUDPServer.write((uint8_t *)datastr, len);
+    locationUDPServer.endPacket();
+}
+
+void handleCanMsg() {
+    const int UDP_PACKET_SIZE = 14; // can be up to 65535
+    uint8_t packetBuffer[UDP_PACKET_SIZE];
+
+    int cb = canUDPServer.parsePacket();
+    if (cb)
+    {
+        int x, y;
+        packetBuffer[cb] = 0; // null terminate string
+        canUDPServer.read(packetBuffer, UDP_PACKET_SIZE);
+
+        x = atoi((char *)packetBuffer + 2);
+        y = atoi((char *)packetBuffer + 7);
+    }
+}
+
+void handleRobotMsg() {
+    const int UDP_PACKET_SIZE = 14; // can be up to 65535
+    uint8_t packetBuffer[UDP_PACKET_SIZE];
+
+    int cb = robotUDPServer.parsePacket();
+    if (cb)
+    {
+        int x, y;
+        packetBuffer[cb] = 0; // null terminate string
+        robotUDPServer.read(packetBuffer, UDP_PACKET_SIZE);
+
+        x = atoi((char *)packetBuffer + 2);
+        y = atoi((char *)packetBuffer + 7);
+    }
+}
 
 /* -------------------------------------------------------------------------- */
 
@@ -234,6 +286,15 @@ void handleSetGainsButtonHit() {
 }
 
 /**
+ * Set destination button press handler.
+ */
+void handleSetRobotNumber() {
+    robotNumber = h.getVal();
+    if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleSetRobotNumber");
+    h.sendplain("");
+}
+
+/**
  * Current position update handler.
  */
 void handleGetCurrentPosition() {
@@ -268,13 +329,28 @@ void setup() {
     Serial.begin(115200);
 
     // WiFi
-    WiFi.softAP(ssid, password);
-    WiFi.softAPConfig(IPAddress(192, 168, 1, 153),  IPAddress(192, 168, 1, 1), 
-            IPAddress(255, 255, 255, 0)); 
-    IPAddress myIP = WiFi.softAPIP();
-    Serial.print("AP IP address: ");  Serial.println(myIP);      
+    if(APMODE) {
+        WiFi.softAP(ssid, password);
+        WiFi.softAPConfig(IPAddress(192, 168, 1, 153),  IPAddress(192, 168, 1, 1), 
+                IPAddress(255, 255, 255, 0)); 
+        IPAddress myIP = WiFi.softAPIP();
+        Serial.print("AP IP address: ");  Serial.println(myIP);   
+    } else {   
+        Serial.print("Connecting to "); Serial.println(ssid);
+        WiFi.config(ipLocal, IPAddress(192, 168, 1, 1), IPAddress(255, 255, 255, 0));
+        WiFi.begin(ssid, password);
+    }
 
-    // Web Buttons
+    // UDP
+    canUDPServer.begin(1510);     // can port 1510
+    robotUDPServer.begin(2510);   // robot port 2510
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+    Serial.println("WiFi connected");
+
+    // Web Interface
     h.begin();
     h.attachHandler("/ ", handleRoot);
     h.attachHandler("/move_fwd_btn_hit", handleMoveForwardButtonHit);
@@ -292,6 +368,7 @@ void setup() {
     h.attachHandler("/offsets?val=", handleSetOffsetsButtonHit);
     h.attachHandler("/destination?val=", handleSetDestinationButtonHit);
     h.attachHandler("/gains?val=", handleSetGainsButtonHit);
+    h.attachHandler("/robot_num?val=", handleSetRobotNumber);
     h.attachHandler("/cur_pos?val=", handleGetCurrentPosition);
     h.attachHandler("/des_pos?val=", handleGetDesiredPosition);
     
@@ -310,16 +387,30 @@ void setup() {
  * Main loop.
  */
 void loop() {
+    // UDP
+    handleCanMsg();
+    handleRobotMsg();
+
     // Serve Web Requests
     h.serve();
 
     // Update Base Control
+    static unsigned int loopCount = 0;
     if(loopCount >= 20) {
         apc.update();
         loopCount = 0;
     }
     loopCount++;
 
+    // Broadcast Location
+    static unsigned int lastLocationTxTime = 0;
+    if(millis() - lastLocationTxTime >= 1000) {
+        char loc[13];
+        sprintf(loc, "%1d:%4d,%4d", robotNumber, frontVive.xCoord(), 
+                rearVive.yCoord());
+        fncUdpSend(loc, 13);
+    }
+    
     // Wait
     delay(10);
 }
