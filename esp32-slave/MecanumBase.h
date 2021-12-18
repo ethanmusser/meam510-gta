@@ -27,6 +27,18 @@ struct WheelSpeeds {
     float rearRightSpeed;
 };
 
+struct Pose2D {
+    float x;
+    float y;
+    float theta;
+};
+
+struct Twist2D {
+    float vx;
+    float vy;
+    float vtheta;
+};
+
 /**
  * Mecanum X-drive mobile base.
  * 

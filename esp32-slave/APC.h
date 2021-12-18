@@ -16,17 +16,17 @@
 #include "vive510.h"  // vive position detection
 #include "MecanumBase.h"  // mecanum base
 
-struct Pose2D {
-    float x;
-    float y;
-    float theta;
-};
+// struct Pose2D {
+//     float x;
+//     float y;
+//     float theta;
+// };
 
-struct Twist2D {
-    float vx;
-    float vy;
-    float vtheta;
-};
+// struct Twist2D {
+//     float vx;
+//     float vy;
+//     float vtheta;
+// };
 
 struct Gains {
     float kp;
