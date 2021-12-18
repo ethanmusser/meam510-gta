@@ -194,12 +194,15 @@ void APC::computePose()
             _rearVive->sync(5);
         }
     }
+    _previousPose = _currentPose;
 
     // Compute Base Pose
-    _previousPose = _currentPose;
-    _currentPose.x = _frontVivePose.x - _offsets.x;
-    _currentPose.y = _frontVivePose.y - _offsets.y;
-    if(_hasRearVive) {
+    if(!_hasRearVive) {
+        _currentPose.x = _frontVivePose.x - _offsets.x;
+        _currentPose.y = _frontVivePose.y - _offsets.y;
+    } else {
+        _currentPose.x = 0.5 * (_frontVivePose.x + _rearVivePose.x) - _offsets.x;
+        _currentPose.y = 0.5 * (_frontVivePose.y + _rearVivePose.y) - _offsets.y;
         Pose2D viveDiff = computeError(_frontVivePose, _rearVivePose);
         float angle = atan2(viveDiff.y, viveDiff.x);
         _currentPose.theta = wrapAngle(angle);
