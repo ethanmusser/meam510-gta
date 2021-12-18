@@ -72,7 +72,7 @@ void TripleTOF::setID()
         // Initialize
         if(!_lox[i]->begin(_loxAddresses[i])) {
             Serial.printf("Failed to boot VL53L0X %d\n", i+1);
-            while(1) ;
+            // while(1) ;
         }
         delay(10);
     }
