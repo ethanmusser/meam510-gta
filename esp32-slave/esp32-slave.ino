@@ -11,10 +11,12 @@
 
 #include <WiFi.h>
 #include <WiFiUdp.h>
+#include <Adafruit_VL53L0X.h>  // time of flight sensor
 #include "indexJS.h"
 #include "html510.h"
 #include "MecanumBase.h"
 #include "APC.h"
+#include "TripleTOF.h"
 
 /**
  * Pin Definitions
@@ -31,6 +33,10 @@
 // Vive Pins
 #define VIVE_F_PIN 36
 #define VIVE_R_PIN 39
+// Time of Flight Pins
+#define LOX_F_SHUT_PIN 15
+#define LOX_RF_SHUT_PIN 14
+#define LOX_RR_SHUT_PIN 27
 
 /**
  * Miscellaneous Definitions
@@ -82,6 +88,13 @@ APC apc(base, frontVive, rearVive,
         0.0, 0.0, 3.0*M_PI_2,
         1.0, 0.2, 0.6, 0.15,
         0.02, 0.17);
+// Time of Flight Sensors
+Adafruit_VL53L0X frontLox = Adafruit_VL53L0X();
+Adafruit_VL53L0X rightFrontLox = Adafruit_VL53L0X();
+Adafruit_VL53L0X rightRearLox = Adafruit_VL53L0X();
+TripleTOF lox(frontLox, 0x30, LOX_F_SHUT_PIN,
+              rightFrontLox, 0x31, LOX_RF_SHUT_PIN,
+              rightRearLox, 0x32, LOX_RR_SHUT_PIN);
 
 
 /* -------------------------------------------------------------------------- */
@@ -381,6 +394,9 @@ void setup() {
     // Vive Sensors
     frontVive.begin();
     rearVive.begin();
+
+    // LOX Sensors
+    lox.begin();
 }
 
 /**
