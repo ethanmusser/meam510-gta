@@ -403,12 +403,13 @@ void loop() {
     loopCount++;
 
     // Broadcast Location
-    static unsigned int lastLocationTxTime = 0;
+    static unsigned long lastLocationTxTime = 0;
     if(millis() - lastLocationTxTime >= 1000) {
         char loc[13];
         sprintf(loc, "%1d:%4d,%4d", robotNumber, frontVive.xCoord(), 
                 rearVive.yCoord());
         fncUdpSend(loc, 13);
+        lastLocationTxTime = millis();
     }
     
     // Wait
