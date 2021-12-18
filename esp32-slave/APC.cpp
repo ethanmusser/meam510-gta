@@ -275,10 +275,10 @@ float APC::wrapAngle(float angle,
                      float upper)
 {
     float range = upper - lower; // https://stackoverflow.com/questions/11498169/dealing-with-angle-wrap-in-c-code
-    angle = fmod(angle - lower, range);
-    if(angle < 0.0) {
-        angle += range;
+    while(angle <= lower || angle > upper) {
+        if(angle <= lower) angle += range;
+        if(angle > upper) angle -= range;
     }
-    return angle + lower;
+    return angle;
 }
 
