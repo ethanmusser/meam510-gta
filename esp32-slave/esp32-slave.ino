@@ -18,6 +18,7 @@
 #include "APC.h"
 #include "TripleTOF.h"
 #include "WallFollower.h"
+#include "BeaconTracker.h"
 
 /**
  * Pin Definitions
@@ -38,6 +39,9 @@
 #define LOX_F_SHUT_PIN 15
 #define LOX_RF_SHUT_PIN 14
 #define LOX_RR_SHUT_PIN 27
+// IR Sensor Pins
+#define IR_L_PIN 10
+#define IR_R_PIN 9
 
 /**
  * Miscellaneous Definitions
@@ -49,6 +53,8 @@
 /**
  * Constants
  */
+// const char* ssid = "TP-Link_E0C8";
+// const char* password = "52665134";
 const char* ssid = "TP-Link_05AF";
 const char* password = "47543454";
 // const char* ssid = "Walrus";
@@ -101,6 +107,8 @@ WallFollower wf(base, lox, 237,
                 300, 200, 180,
                 1.0, 1.0, 
                 0.7, 0.7, 0.5);
+// Beacon Tracking
+BeaconTracker bt(base, IR_L_PIN, IR_R_PIN);
 
 
 /* -------------------------------------------------------------------------- */
@@ -268,6 +276,7 @@ void handleStartWallFollowingButtonHit() {
 void handleStopAutonomousButtonHit() {
     apc.disable();
     wf.disable();
+    bt.disable();
     base.brake();
     if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleSpeedZeroButtonHit");
     h.sendplain("");
@@ -312,6 +321,16 @@ void handleSetGainsButtonHit() {
     float kdRot = str.substring(15).toFloat();
     apc.setGains(kpTrans, kdTrans, kpRot, kdRot);
     if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleSetGainsButtonHit");
+    h.sendplain("");
+}
+
+/**
+ * Set destination button press handler.
+ */
+void handleSetBeaconButtonHit() {
+    bt.setTarget(h.getVal());
+    bt.enable();
+    if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleSetBeaconButtonHit");
     h.sendplain("");
 }
 
@@ -410,6 +429,7 @@ void setup() {
     h.attachHandler("/stop_auto_btn_hit", handleStopAutonomousButtonHit);
     h.attachHandler("/start_wall_follow_btn_hit", handleStartWallFollowingButtonHit);
     h.attachHandler("/offsets?val=", handleSetOffsetsButtonHit);
+    h.attachHandler("/beacon?val=", handleSetBeaconButtonHit);
     h.attachHandler("/destination?val=", handleSetDestinationButtonHit);
     h.attachHandler("/gains?val=", handleSetGainsButtonHit);
     h.attachHandler("/robot_num?val=", handleSetRobotNumber);
@@ -429,6 +449,10 @@ void setup() {
 
     // LOX Sensors
     lox.begin();
+
+    // Beacon Tracker
+    bt.begin();
+    Serial.println("Setup Complete.");
 }
 
 /**
@@ -447,7 +471,9 @@ void loop() {
     if(loopCount >= 20) {
         apc.update();
         wf.update();
+        bt.update();
         loopCount = 0;
+        Serial.println("Control Update.");
     }
     loopCount++;
 

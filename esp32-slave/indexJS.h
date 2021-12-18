@@ -311,19 +311,19 @@ const char body[] PROGMEM = R"===(
                                     </div>        
                                 </div>
                                 <div class="btn_div" style="width: 20%;">
-                                    <!-- <div class="btn_div" style="width: 100%;">
-                                        <div class="row">
-                                            <label for="p_gain_input">Kp-T:</label>
-                                            <input type="number" class="field" id="p_trans_gain_input" step="0.01" min="0" max="9.99" value="3.00">
-                                        </div>
-                                        <div class="row">
-                                            <label for="d_gain_input">Kd-T:</label>
-                                            <input type="number" class="field" id="d_trans_gain_input" step="0.01" min="0" max="10" value="1.00">
-                                        </div>
-                                    </div> -->
                                     <div class="row">
                                         <div class="btn_div" style="width: 50%;">
                                             <button class="button warn" id="start_wall_follow_btn" onmousedown="start_wall_follow_btn_hit()">Start Wall Following</button>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="btn_div" style="width: 50%;">
+                                            <button class="button plain" id="track_23_btn" onmousedown="track_beacon_btn_hit(0)">Track 23-Hz</button>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="btn_div" style="width: 50%;">
+                                            <button class="button plain" id="track_700_btn" onmousedown="track_beacon_btn_hit(1)">Track 700-Hz</button>
                                         </div>
                                     </div>
                                 </div>
@@ -473,6 +473,8 @@ const char body[] PROGMEM = R"===(
         }
         function stop_auto_btn_hit() {
             var xhttp = new XMLHttpRequest();
+            document.getElementById("track_23_btn").classList.remove('selected');
+            document.getElementById("track_700_btn").classList.remove('selected');
             xhttp.open("GET", "stop_auto_btn_hit", true);
             xhttp.send();
         }
@@ -514,10 +516,28 @@ const char body[] PROGMEM = R"===(
             xhttp.open("GET", res, true);
             xhttp.send();
         }
+        // Beacon Tracker
+        function track_beacon_btn_hit(num) {
+            var xhttp = new XMLHttpRequest();
+            switch (num) {
+                case 0:
+                    document.getElementById("track_23_btn").classList.add('selected');
+                    document.getElementById("track_700_btn").classList.remove('selected');
+                    break;
+                case 1:
+                    document.getElementById("track_23_btn").classList.remove('selected');
+                    document.getElementById("track_700_btn").classList.add('selected');
+                    break;
+            }
+            var str = "beacon?val=";
+            var res = str.concat(num);
+            xhttp.open("GET", res, true);
+            xhttp.send();
+        }
         // Location Outputs
         setInterval(get_cur_pos, 250);
-        setInterval(get_des_pos, 1000);
-        setInterval(get_lox, 100);
+        setInterval(get_des_pos, 2000);
+        setInterval(get_lox, 1000);
         function get_cur_pos() {
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function() {
