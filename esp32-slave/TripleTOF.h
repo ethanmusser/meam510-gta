@@ -18,6 +18,12 @@
 #define NUM_LOX 3
 #define OUT_OF_RANGE 99999
 
+struct TripleRange {
+    unsigned int r1;
+    unsigned int r2;
+    unsigned int r3;
+};
+
 /**
  * Triple time of flight sensor class.
  */
@@ -58,6 +64,13 @@ class TripleTOF
          * Reads sensors.
          */
         void readSensors();
+
+        /**
+         * Reads and returns sensor ranges.
+         * 
+         * @return Structure of range values.
+         */
+        TripleRange getRanges();
 
     private:
         Adafruit_VL53L0X* _lox[NUM_LOX];

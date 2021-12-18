@@ -49,6 +49,13 @@ void TripleTOF::readSensors()
     }
 }
 
+TripleRange TripleTOF::getRanges()
+{
+    readSensors();
+    TripleRange ranges = {_rangeMillis[0], _rangeMillis[1], _rangeMillis[2]};
+    return ranges;
+}
+
 void TripleTOF::setID()
 {
     // All Reset
