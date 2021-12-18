@@ -1,4 +1,4 @@
-/*
+/**
  * indexJS.h
  * HTML and Javascript code for mecanum drive web interface.
  * 
@@ -65,7 +65,7 @@ const char body[] PROGMEM = R"===(
             display: table-cell;
         }
         .button {
-            background-color: #4CAF50; /* Green */
+            background-color: #4CAF50;
             border: none;
             color: white;
             padding: 5px 5px;
@@ -81,9 +81,6 @@ const char body[] PROGMEM = R"===(
         .button:hover {
             opacity: 1;
         }
-        label {
-            display: inline-block;
-        }​
         .info {
             background-color: #5bc0de;
         }
@@ -95,6 +92,19 @@ const char body[] PROGMEM = R"===(
         }
         .danger {
             background-color: #bb2124;
+        }
+        .selected {
+            background-color: #bb2124;
+        }
+        label {
+            display: inline-block;
+        }
+        input {
+            width: 80%;
+            padding: 4px 4px;
+            margin: 4px 0;
+            box-sizing: border-box;
+            border: 2px solid gray;
         }
     </style>
 </head>
@@ -226,39 +236,39 @@ const char body[] PROGMEM = R"===(
                             <div class="row">
                                 <div class="btn_div" style="width: 25%;">
                                     <div class="row">
-                                        <label for="x_offset_input">X:</label>
-                                        <input type="number" class="field info" id="x_offset_input" step="10" min="0" max="9999" value="0">
+                                        <label for="x_pos_input">X:</label>
+                                        <input type="number" class="field" id="x_pos_input" step="10" min="0" max="9999" value="4000">
                                     </div>
                                     <div class="row">
-                                        <label for="y_offset_input">Y:</label>
-                                        <input type="number" class="field info" id="y_offset_input" step="10" min="0" max="9999" value="0">
+                                        <label for="y_pos_input">Y:</label>
+                                        <input type="number" class="field" id="y_pos_input" step="10" min="0" max="9999" value="4000">
                                     </div>
                                     <div class="row">
-                                        <label for="q_offset_input">Q:</label>
-                                        <input type="number" class="field info" id="q_offset_input" step="10" min="0" max="360" value="180">
+                                        <label for="q_pos_input">Q:</label>
+                                        <input type="number" class="field" id="q_pos_input" step="10" min="0" max="360" value="180">
                                     </div>
                                     <div class="row">
                                         <div class="btn_div" style="width: 50%;">
-                                            <button class="button info" id="set_dest_btn" onmousedown="set_offset_btn_hit()">Set Offsets</button>
+                                            <button class="button" id="set_dest_btn" onmousedown="set_dest_btn_hit()">Set Destination</button>
                                         </div>
                                     </div>        
                                 </div>
                                 <div class="btn_div" style="width: 25%;">
                                     <div class="row">
-                                        <label for="x_pos_input">X:</label>
-                                        <input type="number" class="field info" id="x_pos_input" step="10" min="0" max="9999" value="4000">
+                                        <label for="x_offset_input">X:</label>
+                                        <input type="number" class="field" id="x_offset_input" step="10" min="0" max="9999" value="0">
                                     </div>
                                     <div class="row">
-                                        <label for="y_pos_input">Y:</label>
-                                        <input type="number" class="field info" id="y_pos_input" step="10" min="0" max="9999" value="4000">
+                                        <label for="y_offset_input">Y:</label>
+                                        <input type="number" class="field" id="y_offset_input" step="10" min="0" max="9999" value="0">
                                     </div>
                                     <div class="row">
-                                        <label for="q_pos_input">Q:</label>
-                                        <input type="number" class="field info" id="q_pos_input" step="10" min="0" max="360" value="180">
+                                        <label for="q_offset_input">Q:</label>
+                                        <input type="number" class="field" id="q_offset_input" step="10" min="0" max="360" value="180">
                                     </div>
                                     <div class="row">
                                         <div class="btn_div" style="width: 50%;">
-                                            <button class="button info" id="set_dest_btn" onmousedown="set_dest_btn_hit()">Set Destination</button>
+                                            <button class="button warn" id="set_offset_btn" onmousedown="set_offset_btn_hit()">Set Offsets</button>
                                         </div>
                                     </div>        
                                 </div>
@@ -266,26 +276,26 @@ const char body[] PROGMEM = R"===(
                                     <div class="btn_div" style="width: 50%;">
                                         <div class="row">
                                             <label for="p_gain_input">Kp-T:</label>
-                                            <input type="number" class="field info" id="p_trans_gain_input" step="0.01" min="0" max="9.99" value="3.00">
+                                            <input type="number" class="field" id="p_trans_gain_input" step="0.01" min="0" max="9.99" value="3.00">
                                         </div>
                                         <div class="row">
                                             <label for="d_gain_input">Kd-T:</label>
-                                            <input type="number" class="field info" id="d_trans_gain_input" step="0.01" min="0" max="10" value="1.00">
+                                            <input type="number" class="field" id="d_trans_gain_input" step="0.01" min="0" max="10" value="1.00">
                                         </div>
                                     </div>
                                     <div class="btn_div" style="width: 50%;">
                                         <div class="row">
                                             <label for="p_gain_input">Kp-R:</label>
-                                            <input type="number" class="field info" id="p_rot_gain_input" step="0.01" min="0" max="9.99" value="0.60">
+                                            <input type="number" class="field" id="p_rot_gain_input" step="0.01" min="0" max="9.99" value="0.60">
                                         </div>
                                         <div class="row">
                                             <label for="d_gain_input">Kd-R:</label>
-                                            <input type="number" class="field info" id="d_rot_gain_input" step="0.01" min="0" max="10" value="0.2">
+                                            <input type="number" class="field" id="d_rot_gain_input" step="0.01" min="0" max="10" value="0.2">
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="btn_div" style="width: 50%;">
-                                            <button class="button info" id="set_gains_btn" onmousedown="set_gain_btn_hit()">Set Gains</button>
+                                            <button class="button warn" id="set_gains_btn" onmousedown="set_gain_btn_hit()">Set Gains</button>
                                         </div>
                                     </div>        
                                 </div>
@@ -297,20 +307,36 @@ const char body[] PROGMEM = R"===(
                             </div>
                         </div>
                     </div>
-                    <div class="block" title="blank_ctrl" style="width: 40%;">
-                        <h3>Blank</h3>
+                    <div class="block" title="team_info" style="width: 20%;">
+                        <h3>Robot Number</h3>
+                        <div class="btn_panel">
+                            <div class="row">
+                                <div class="btn_div" style="width: 50%;">
+                                    <button class="button plain" id="robot_1_btn" onmousedown="set_robot_num_btn_hit(1)">1</button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="btn_div" style="width: 50%;">
+                                    <button class="button plain" id="robot_2_btn" onmousedown="set_robot_num_btn_hit(2)">2</button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="btn_div" style="width: 50%;">
+                                    <button class="button plain" id="robot_3_btn" onmousedown="set_robot_num_btn_hit(3)">3</button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="btn_div" style="width: 50%;">
+                                    <button class="button plain" id="robot_4_btn" onmousedown="set_robot_num_btn_hit(4)">4</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <script>
-        /**
-         * Messages
-         */
-        var esp32_msg = [];
-        var esp32_status = [];
-
         /**
          * Listeners
          */
@@ -417,9 +443,47 @@ const char body[] PROGMEM = R"===(
             xhttp.open("GET", "stop_auto_btn_hit", true);
             xhttp.send();
         }
+        // Robot Number
+        function set_robot_num_btn_hit(num) {
+            var xhttp = new XMLHttpRequest();
+            switch (num) {
+                case 1:
+                    document.getElementById("robot_1_btn").classList.add('selected');
+                    document.getElementById("robot_2_btn").classList.remove('selected');
+                    document.getElementById("robot_3_btn").classList.remove('selected');
+                    document.getElementById("robot_4_btn").classList.remove('selected');
+                    document.body.style.backgroundColor = "#ffccbc";
+                    break;
+                case 2:
+                    document.getElementById("robot_1_btn").classList.remove('selected');
+                    document.getElementById("robot_2_btn").classList.add('selected');
+                    document.getElementById("robot_3_btn").classList.remove('selected');
+                    document.getElementById("robot_4_btn").classList.remove('selected');
+                    document.body.style.backgroundColor = "#ffccbc";
+                    break;
+                case 3:
+                    document.getElementById("robot_1_btn").classList.remove('selected');
+                    document.getElementById("robot_2_btn").classList.remove('selected');
+                    document.getElementById("robot_3_btn").classList.add('selected');
+                    document.getElementById("robot_4_btn").classList.remove('selected');
+                    document.body.style.backgroundColor = "#d3e3fc";
+                    break;
+                case 4:
+                    document.getElementById("robot_1_btn").classList.remove('selected');
+                    document.getElementById("robot_2_btn").classList.remove('selected');
+                    document.getElementById("robot_3_btn").classList.remove('selected');
+                    document.getElementById("robot_4_btn").classList.add('selected');
+                    document.body.style.backgroundColor = "#d3e3fc";
+                    break;
+            }
+            var str = "robot_num?val=";
+            var res = str.concat(num);
+            xhttp.open("GET", res, true);
+            xhttp.send();
+        }
         // Location Outputs
-        setInterval(get_cur_pos, 200);
-        setInterval(get_des_pos, 200);
+        setInterval(get_cur_pos, 250);
+        setInterval(get_des_pos, 1000);
         function get_cur_pos() {
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function() {
