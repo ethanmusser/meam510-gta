@@ -17,6 +17,7 @@
 #include "MecanumBase.h"
 #include "APC.h"
 #include "TripleTOF.h"
+#include "WallFollower.h"
 
 /**
  * Pin Definitions
@@ -95,6 +96,11 @@ Adafruit_VL53L0X rightRearLox = Adafruit_VL53L0X();
 TripleTOF lox(frontLox, 0x30, LOX_F_SHUT_PIN,
               rightFrontLox, 0x31, LOX_RF_SHUT_PIN,
               rightRearLox, 0x32, LOX_RR_SHUT_PIN);
+// Wall Following
+WallFollower wf(base, lox, 237,
+                200, 200, 400,
+                1.0, 1.0, 
+                0.7, 0.5, 0.5);
 
 
 /* -------------------------------------------------------------------------- */
@@ -247,10 +253,21 @@ void handleSpeedZeroButtonHit() {
 }
 
 /**
+ * Start wall following button press handler.
+ */
+void handleStartWallFollowingButtonHit() {
+    apc.disable();
+    wf.enable();
+    if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleStartWallFollowingButtonHit");
+    h.sendplain("");
+}
+
+/**
  * Stop autonomous button press handler.
  */
 void handleStopAutonomousButtonHit() {
     apc.disable();
+    wf.disable();
     base.brake();
     if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleSpeedZeroButtonHit");
     h.sendplain("");
@@ -332,6 +349,18 @@ void handleGetDesiredPosition() {
     h.sendplain(str);
 }
 
+/**
+ * ToF values update handler.
+ */
+void handleGetLoxVals() {
+    int front = wf._currentPose.front;
+    int right = wf._currentPose.right;
+    int theta = (int) (wf._currentPose.theta * 180.0 / M_PI) + 180;
+    String str = "f = " + String(front) + "mm, \nr = " + String(right) + " mm, \nq = " + String(theta) + " deg\n";
+    if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleGetLoxVals");
+    h.sendplain(str);
+}
+
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -378,12 +407,14 @@ void setup() {
     h.attachHandler("/spd_full_btn_hit", handleSpeedFullButtonHit);
     h.attachHandler("/spd_zero_btn_hit", handleSpeedZeroButtonHit);
     h.attachHandler("/stop_auto_btn_hit", handleStopAutonomousButtonHit);
+    h.attachHandler("/start_wall_follow_btn_hit", handleStartWallFollowingButtonHit);
     h.attachHandler("/offsets?val=", handleSetOffsetsButtonHit);
     h.attachHandler("/destination?val=", handleSetDestinationButtonHit);
     h.attachHandler("/gains?val=", handleSetGainsButtonHit);
     h.attachHandler("/robot_num?val=", handleSetRobotNumber);
     h.attachHandler("/cur_pos?val=", handleGetCurrentPosition);
     h.attachHandler("/des_pos?val=", handleGetDesiredPosition);
+    h.attachHandler("/lox?val=", handleGetLoxVals);
     
     // Motors
     frontLeftMotor.setup();
@@ -414,6 +445,7 @@ void loop() {
     static unsigned int loopCount = 0;
     if(loopCount >= 20) {
         apc.update();
+        wf.update();
         loopCount = 0;
     }
     loopCount++;

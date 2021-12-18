@@ -177,6 +177,17 @@ const char body[] PROGMEM = R"===(
                         </div>
                     </div>
                 </div>
+                <div class="row" title="location">
+                    <div class="block" title="location" style="width: 50%;">
+                        <h3>Wall-Following</h3>
+                        <div class="row">
+                            <div class="motor_block">
+                                <h4>ToF Output</h4>
+                                <span id="lox_output"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="section" title="control" style="width: auto;">
                 <div class="row" title="movement_and_speed">
@@ -234,7 +245,7 @@ const char body[] PROGMEM = R"===(
                         <h3>Autonomous</h3>
                         <div class="btn_panel">
                             <div class="row">
-                                <div class="btn_div" style="width: 25%;">
+                                <div class="btn_div" style="width: 20%;">
                                     <div class="row">
                                         <label for="x_pos_input">X:</label>
                                         <input type="number" class="field" id="x_pos_input" step="10" min="0" max="9999" value="4000">
@@ -253,7 +264,7 @@ const char body[] PROGMEM = R"===(
                                         </div>
                                     </div>        
                                 </div>
-                                <div class="btn_div" style="width: 25%;">
+                                <div class="btn_div" style="width: 20%;">
                                     <div class="row">
                                         <label for="x_offset_input">X:</label>
                                         <input type="number" class="field" id="x_offset_input" step="10" min="0" max="9999" value="0">
@@ -272,7 +283,7 @@ const char body[] PROGMEM = R"===(
                                         </div>
                                     </div>        
                                 </div>
-                                <div class="btn_div" style="width: 50%;">
+                                <div class="btn_div" style="width: 40%;">
                                     <div class="btn_div" style="width: 50%;">
                                         <div class="row">
                                             <label for="p_gain_input">Kp-T:</label>
@@ -299,6 +310,23 @@ const char body[] PROGMEM = R"===(
                                         </div>
                                     </div>        
                                 </div>
+                                <div class="btn_div" style="width: 20%;">
+                                    <!-- <div class="btn_div" style="width: 100%;">
+                                        <div class="row">
+                                            <label for="p_gain_input">Kp-T:</label>
+                                            <input type="number" class="field" id="p_trans_gain_input" step="0.01" min="0" max="9.99" value="3.00">
+                                        </div>
+                                        <div class="row">
+                                            <label for="d_gain_input">Kd-T:</label>
+                                            <input type="number" class="field" id="d_trans_gain_input" step="0.01" min="0" max="10" value="1.00">
+                                        </div>
+                                    </div> -->
+                                    <div class="row">
+                                        <div class="btn_div" style="width: 50%;">
+                                            <button class="button warn" id="start_wall_follow_btn" onmousedown="start_wall_follow_btn_hit()">Start Wall Following</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="row">
                                 <div class="btn_div" style="width: 100%;">
@@ -307,7 +335,7 @@ const char body[] PROGMEM = R"===(
                             </div>
                         </div>
                     </div>
-                    <div class="block" title="team_info" style="width: 20%;">
+                    <div class="block" title="team_info" style="width: 10%;">
                         <h3>Robot Number</h3>
                         <div class="btn_panel">
                             <div class="row">
@@ -404,6 +432,11 @@ const char body[] PROGMEM = R"===(
             xhttp.send();
         }
         // Autonomous Button Hits
+        function start_wall_follow_btn_hit() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("GET", "start_wall_follow_btn_hit", true);
+            xhttp.send();
+        }
         function set_offset_btn_hit() {
             var xhttp = new XMLHttpRequest();
             var xval = ("000" + document.getElementById('x_offset_input').value).slice(-4);
@@ -504,6 +537,18 @@ const char body[] PROGMEM = R"===(
                 }
             };
             var str = "des_pos?val=";
+            var res = str.concat(this.value);
+            xhttp.open("GET", res, true);
+            xhttp.send();
+        }
+        function get_lox() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById("lox_output").innerHTML = this.responseText;
+                }
+            };
+            var str = "lox?val=";
             var res = str.concat(this.value);
             xhttp.open("GET", res, true);
             xhttp.send();
