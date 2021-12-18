@@ -45,6 +45,7 @@ class WallFollower
     public:
         WallPose _currentPose;
         FollowerState _state;
+        TripleRange _ranges;
 
         /**
          * Constructor for wall follower class.

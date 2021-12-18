@@ -88,7 +88,7 @@ void WallFollower::followWall()
 
 void WallFollower::turnCorner()
 {
-    if(_currentPose.front >= _rotDistance || _ranges.r2 >= _ranges.r3 ) {
+    if(_currentPose.front >= _rotDistance ) {
         _state = findingWall;
     } else {
         _base->driveCartesian(0.0, 0.0, _rotationSpeed);  
