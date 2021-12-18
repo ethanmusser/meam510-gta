@@ -53,6 +53,7 @@ void BeaconTracker::update()
         microseconds = micros();
         _period[0] = checkPeriod(0);
         _period[1] = checkPeriod(1);
+        Serial.print("Periods = "); Serial.print(_period[0]); Serial.print(", "); Serial.println(_period[1]);
         findBeacon();
     }
 }

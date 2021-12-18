@@ -110,19 +110,23 @@ void APC::update()
     Pose2D error = computeError(_currentPose, _desiredPose);
     float transNormError = computeTranslationalNorm(error);
 
+    // Fix Desired Angle
+    _desiredPose.theta = wrapAngle(atan2(error.y, error.x));
+    error.theta = -_currentPose.theta + _desiredPose.theta;
+
     // Control Inputs
     if(_transControlEnabled || _rotControlEnabled){
-        if(transNormError <= _epsilons.epsilonT && error.theta <= _epsilons.epsilonR) {
+        if(transNormError <= _epsilons.epsilonT) {
             disable();
         } else {
             Twist2D control = computeBaseControl(_currentPose, _currentTwist, 
                     _desiredPose, _transGains, _rotGains);
-            if(transNormError <= _epsilons.epsilonT) {
-                control.vx = 0.0;
-                control.vy = 0.0;
-            } else if(error.theta <= _epsilons.epsilonR) {
-                control.vtheta = 0.0;
-            }
+            // if(error.theta > _epsilons.epsilonR) {
+            //     control.vx = 0.0;
+            //     control.vy = 0.0;
+            // } else if(transNormError > _epsilons.epsilonT) {
+            //     control.vtheta = 0.0;
+            // } 
             _base->driveCartesian(control.vx, control.vy, control.vtheta);
         }
     }

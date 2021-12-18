@@ -287,7 +287,7 @@ const char body[] PROGMEM = R"===(
                                     <div class="btn_div" style="width: 50%;">
                                         <div class="row">
                                             <label for="p_gain_input">Kp-T:</label>
-                                            <input type="number" class="field" id="p_trans_gain_input" step="0.01" min="0" max="9.99" value="3.00">
+                                            <input type="number" class="field" id="p_trans_gain_input" step="0.01" min="0" max="9.99" value="4.00">
                                         </div>
                                         <div class="row">
                                             <label for="d_gain_input">Kd-T:</label>
@@ -529,7 +529,7 @@ const char body[] PROGMEM = R"===(
                     document.getElementById("track_700_btn").classList.add('selected');
                     break;
             }
-            var str = "beacon?val=";
+            var str = "bacon?val=";
             var res = str.concat(num);
             xhttp.open("GET", res, true);
             xhttp.send();
@@ -537,7 +537,7 @@ const char body[] PROGMEM = R"===(
         // Location Outputs
         setInterval(get_cur_pos, 250);
         setInterval(get_des_pos, 2000);
-        setInterval(get_lox, 1000);
+        // setInterval(get_lox, 1000);
         function get_cur_pos() {
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function() {

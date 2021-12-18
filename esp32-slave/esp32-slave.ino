@@ -53,10 +53,10 @@
 /**
  * Constants
  */
-// const char* ssid = "TP-Link_E0C8";
-// const char* password = "52665134";
-const char* ssid = "TP-Link_05AF";
-const char* password = "47543454";
+const char* ssid = "TP-Link_E0C8";
+const char* password = "52665134";
+// const char* ssid = "TP-Link_05AF";
+// const char* password = "47543454";
 // const char* ssid = "Walrus";
 // const char* password = "password";
 const float speedAdjustmentFactor = 0.1;
@@ -108,7 +108,9 @@ WallFollower wf(base, lox, 237,
                 1.0, 1.0, 
                 0.7, 0.7, 0.5);
 // Beacon Tracking
-BeaconTracker bt(base, IR_L_PIN, IR_R_PIN);
+BeaconTracker bt(base, IR_L_PIN, IR_R_PIN,
+                 23, 700, 5000, 5000,
+                 0.7, 0.5);
 
 
 /* -------------------------------------------------------------------------- */
@@ -429,7 +431,7 @@ void setup() {
     h.attachHandler("/stop_auto_btn_hit", handleStopAutonomousButtonHit);
     h.attachHandler("/start_wall_follow_btn_hit", handleStartWallFollowingButtonHit);
     h.attachHandler("/offsets?val=", handleSetOffsetsButtonHit);
-    h.attachHandler("/beacon?val=", handleSetBeaconButtonHit);
+    h.attachHandler("/bacon?val=", handleSetBeaconButtonHit);
     h.attachHandler("/destination?val=", handleSetDestinationButtonHit);
     h.attachHandler("/gains?val=", handleSetGainsButtonHit);
     h.attachHandler("/robot_num?val=", handleSetRobotNumber);
@@ -468,12 +470,11 @@ void loop() {
 
     // Update Base Control
     static unsigned int loopCount = 0;
-    if(loopCount >= 20) {
+    if(loopCount >= 5) {
         apc.update();
         wf.update();
         bt.update();
         loopCount = 0;
-        Serial.println("Control Update.");
     }
     loopCount++;
 
