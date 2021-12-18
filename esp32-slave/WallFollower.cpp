@@ -48,7 +48,8 @@ void WallFollower::disable()
 void WallFollower::update()
 {
     if(_state != notFollowing) {
-        _currentPose = parseRanges(_ttof->getRanges());
+        TripleRange _ranges = _ttof->getRanges();
+        _currentPose = parseRanges(_ranges);
         switch(_state) {
             case findingWall:
                 findWall();
@@ -76,15 +77,18 @@ void WallFollower::followWall()
 {
     if(_currentPose.front <= _turnDistance) {
         _state = turningCorner;
+    } else if(_currentPose.right >= _setDistance) {
+        _state = findingWall;
     } else {
-        Twist2D control = wallControl(_currentPose, _setDistance, _followSpeed, 
-                _gains);
+        _base->driveCartesian(_followSpeed, 0.0, 0.0);
+        // Twist2D control = wallControl(_currentPose, _setDistance, _followSpeed, 
+                // _gains);
     }
 }
 
 void WallFollower::turnCorner()
 {
-    if(_currentPose.front >= _rotDistance) {
+    if(_currentPose.front >= _rotDistance || _ranges.r2 >= _ranges.r3 ) {
         _state = findingWall;
     } else {
         _base->driveCartesian(0.0, 0.0, _rotationSpeed);  
@@ -98,7 +102,7 @@ Twist2D WallFollower::wallControl(WallPose pose,
 {
     Twist2D control;
     control.vx = followSpeed;
-    control.vy = gains.kpWall * ((float) (pose.right - (int) setDistance)) / 1.0e3;
+    control.vy = -gains.kpWall * ((float) (pose.right - (int) setDistance)) / 1.0e3;
     control.vtheta = gains.kpRot * pose.theta;
     return control;
 }

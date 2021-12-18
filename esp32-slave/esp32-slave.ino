@@ -98,9 +98,9 @@ TripleTOF lox(frontLox, 0x30, LOX_F_SHUT_PIN,
               rightRearLox, 0x32, LOX_RR_SHUT_PIN);
 // Wall Following
 WallFollower wf(base, lox, 237,
-                200, 200, 400,
+                300, 200, 180,
                 1.0, 1.0, 
-                0.7, 0.5, 0.5);
+                0.7, 0.7, 0.5);
 
 
 /* -------------------------------------------------------------------------- */
@@ -356,7 +356,8 @@ void handleGetLoxVals() {
     int front = wf._currentPose.front;
     int right = wf._currentPose.right;
     int theta = (int) (wf._currentPose.theta * 180.0 / M_PI) + 180;
-    String str = "f = " + String(front) + "mm, \nr = " + String(right) + " mm, \nq = " + String(theta) + " deg\n";
+    int mode = wf._state;
+    String str = "f = " + String(front) + "mm, \nr = " + String(right) + " mm, \nq = " + String(theta) + " deg\n, mode = " + String(mode) + "\n";
     if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleGetLoxVals");
     h.sendplain(str);
 }

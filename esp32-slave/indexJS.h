@@ -517,6 +517,7 @@ const char body[] PROGMEM = R"===(
         // Location Outputs
         setInterval(get_cur_pos, 250);
         setInterval(get_des_pos, 1000);
+        setInterval(get_lox, 100);
         function get_cur_pos() {
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function() {
@@ -593,6 +594,8 @@ const char body[] PROGMEM = R"===(
             } else if (code == 76 || code == 'l' || code == 'KeyL') {
                 spd_zero_btn_hit();
                 event.preventDefault();
+            } else if (code == 32 || code == 'Space') {
+                stop_auto_btn_hit();
             }
         }
 
