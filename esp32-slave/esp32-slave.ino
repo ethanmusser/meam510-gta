@@ -40,8 +40,10 @@
 #define LOX_RF_SHUT_PIN 14
 #define LOX_RR_SHUT_PIN 27
 // IR Sensor Pins
-#define IR_L_PIN 10
-#define IR_R_PIN 9
+#define IR_L_PIN 9
+#define IR_R_PIN 10
+// Autonomous LED
+#define AUTO_LED_PIN 12
 
 /**
  * Miscellaneous Definitions
@@ -67,6 +69,7 @@ const float rotationalSpeedFactor = 0.7;
  */
 unsigned int robotNumber = 1;
 float baseSpeed = 0.8;
+enum AutonomousMode { noAutonomous, apcAutonomous, wallFollowingAutonomous, beaconTrackingAutonomous } autoMode;
 
 /**
  * Global Objects
@@ -268,6 +271,7 @@ void handleSpeedZeroButtonHit() {
 void handleStartWallFollowingButtonHit() {
     apc.disable();
     wf.enable();
+    autoMode = wallFollowingAutonomous;
     if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleStartWallFollowingButtonHit");
     h.sendplain("");
 }
@@ -280,6 +284,7 @@ void handleStopAutonomousButtonHit() {
     wf.disable();
     bt.disable();
     base.brake();
+    autoMode = noAutonomous;
     if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleSpeedZeroButtonHit");
     h.sendplain("");
 }
@@ -308,6 +313,7 @@ void handleSetDestinationButtonHit() {
     float q = (str.substring(10).toFloat() - 180) * M_PI / 180.0;
     apc.setDestination(x, y, q);
     apc.enable();
+    autoMode = apcAutonomous;
     if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleSetDestinationButtonHit");
     h.sendplain("");
 }
@@ -332,6 +338,7 @@ void handleSetGainsButtonHit() {
 void handleSetBeaconButtonHit() {
     bt.setTarget(h.getVal());
     bt.enable();
+    autoMode = beaconTrackingAutonomous;
     if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleSetBeaconButtonHit");
     h.sendplain("");
 }
@@ -382,6 +389,28 @@ void handleGetLoxVals() {
     if (DEBUGMODE) Serial.println("[DEBUG][esp32-slave.ino] handleGetLoxVals");
     h.sendplain(str);
 }
+
+/* -------------------------------------------------------------------------- */
+
+// static volatile int currentRisingEdgeTime[2];
+// static volatile int lastRisingEdgeTime[2];
+// static volatile float period[2];
+// static volatile float frequency[2];
+
+// void IRAM_ATTR computeFrequency(unsigned int ch) {
+//     currentRisingEdgeTime[ch] = micros();
+//     period[ch] = (currentRisingEdgeTime[ch] - lastRisingEdgeTime[ch]) / 1.0e6;
+//     frequency[ch] = 1.0 / period[ch];
+//     lastRisingEdgeTime[ch] = currentRisingEdgeTime[ch];
+// }
+
+// void IRAM_ATTR detectRisingEdgeLeft() {
+//     computeFrequency(0);
+// }
+
+// void IRAM_ATTR detectRisingEdgeRight() {
+//     computeFrequency(1);
+// }   
 
 /* -------------------------------------------------------------------------- */
 
@@ -453,8 +482,13 @@ void setup() {
     lox.begin();
 
     // Beacon Tracker
-    bt.begin();
-    Serial.println("Setup Complete.");
+    // bt.begin();
+    // attachInterrupt(digitalPinToInterrupt(IR_L_PIN), detectRisingEdgeLeft, RISING);
+    // attachInterrupt(digitalPinToInterrupt(IR_R_PIN), detectRisingEdgeRight, RISING);
+    // Serial.println("Setup Complete.");
+
+    // Autonomous Light
+    pinMode(AUTO_LED_PIN, OUTPUT);
 }
 
 /**
@@ -469,14 +503,34 @@ void loop() {
     h.serve();
 
     // Update Base Control
-    static unsigned int loopCount = 0;
-    if(loopCount >= 5) {
-        apc.update();
-        wf.update();
-        bt.update();
-        loopCount = 0;
+    static long autoStartTime = millis();
+    static bool lastAuto = false;
+    if(autoMode != noAutonomous && !lastAuto) {
+        autoStartTime = millis();
     }
-    loopCount++;
+    if(millis() - autoStartTime >= 5000 && lastAuto) {
+        digitalWrite(AUTO_LED_PIN, HIGH);
+    } else {
+        digitalWrite(AUTO_LED_PIN, LOW);
+    }
+    switch(autoMode) {
+        case noAutonomous:
+            lastAuto = false;
+            break;
+        case apcAutonomous:
+            lastAuto = true;
+            apc.update();
+            break;
+        case wallFollowingAutonomous:
+            lastAuto = true;
+            wf.update();
+            break;
+        case beaconTrackingAutonomous:
+            lastAuto = true;
+            // bt.setFrequency(frequency[0], frequency[1]);
+            // bt.update();
+            break;
+    }
 
     // Broadcast Location
     static unsigned long lastLocationTxTime = 0;
@@ -487,7 +541,4 @@ void loop() {
         fncUdpSend(loc, 13);
         lastLocationTxTime = millis();
     }
-    
-    // Wait
-    delay(10);
 }

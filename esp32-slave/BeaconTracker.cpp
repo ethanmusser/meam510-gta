@@ -22,7 +22,7 @@ BeaconTracker::BeaconTracker(MecanumBase& base,
                              float rotateSpeed)
     : _base(&base),
       _irPins{leftIrPin, rightIrPin},
-      _frequencies{lowFrequency, highFrequency},
+      _setFrequencies{lowFrequency, highFrequency},
       _desPeriod{1000000/lowFrequency, 1000000/highFrequency},
       _noise{lowNoise, highNoise},
       _driveSpeed(driveSpeed),
@@ -50,55 +50,70 @@ void BeaconTracker::disable()
 void BeaconTracker::update()
 {
     if(_state != notTracking) {
-        microseconds = micros();
-        _period[0] = checkPeriod(0);
-        _period[1] = checkPeriod(1);
-        Serial.print("Periods = "); Serial.print(_period[0]); Serial.print(", "); Serial.println(_period[1]);
         findBeacon();
     }
 }
 
-void BeaconTracker::setTarget(unsigned int target)
+void BeaconTracker::setTarget(float target)
 {
     _target = target;
 }
 
 void BeaconTracker::findBeacon()
 {
-    if(_period[0] == 1 && _period[1] == 1) {
+    // Serial.print("freqs = "); Serial.print(frequency[0]); Serial.print(", "); Serial.println(frequency[1]);
+    bool f0 = isClose(frequency[0], _target, 10);
+    bool f1 = isClose(frequency[1], _target, 10);
+    if(f0 && f1) {
         _state = approaching;
         _base->driveCartesian(_driveSpeed, 0.0, 0.0);
-    } else if((_period[0] == 1 && _period[1] == 0) 
-               || (_period[0] == 0 && _period[1] == 0)) {
+    } else if((f0 && !f1) || (!f0 && !f1)) {
         _state = searching;
         _base->driveCartesian(0.0, 0.0, -_rotateSpeed);
-    } else if(_period[0] == 0 && _period[1] == 1) {
+    } else if(!f0 && f1) {
         _state = searching;
         _base->driveCartesian(0.0, 0.0, _rotateSpeed);
     }
 }
 
-int BeaconTracker::checkPeriod(unsigned int ch)
+bool BeaconTracker::isClose(float a, float b, float epsilon) 
 {
-    static unsigned int prevRead[NUM_BEACONS];
-    static unsigned int prevTime[NUM_BEACONS];
-
-    int on_off;
-    unsigned int newRead = digitalRead(_irPins[ch]);
-    if(newRead != prevRead[ch]) {
-        int period = 2 * (microseconds - prevTime[ch]);
-        if(period > _desPeriod[_target] - _noise[_target] 
-           && period < _desPeriod[_target] + _noise[_target]) {
-            on_off = 1;
-        } else {
-            on_off = 0;
-        }
-    } else {
-        on_off = 0;
-    }
-    prevRead[ch] = newRead;
-    prevTime[ch] = microseconds;
-    return on_off;
+    return abs(a - b) < abs(epsilon);
 }
+
+void BeaconTracker::setFrequency(float freq1, float freq2)
+{
+    frequency[0] = freq1;
+    frequency[1] = freq2;
+}
+
+
+// int BeaconTracker::checkPeriod(unsigned int ch)
+// {
+//     static unsigned int prevRead[NUM_BEACONS];
+//     static unsigned int prevTime[NUM_BEACONS];
+
+//     int on_off;
+//     unsigned int newRead = digitalRead(_irPins[ch]);
+//     Serial.print("newRead = "); Serial.println(newRead);
+//     if(newRead != prevRead[ch]) {
+//         int period = 2 * (microseconds - prevTime[ch]);
+//         Serial.print("period = "); Serial.println(period);
+//         Serial.print("microseconds = "); Serial.println(microseconds);
+//         Serial.print("prevTime = "); Serial.println(prevTime[ch]);
+//         if(period > _desPeriod[_target] - _noise[_target] 
+//            && period < _desPeriod[_target] + _noise[_target]) {
+//             on_off = 1;
+//         } else {
+//             on_off = 0;
+//         }
+//     } else {
+//         on_off = 0;
+//     }
+//     prevRead[ch] = newRead;
+//     prevTime[ch] = microseconds;
+//     return on_off;
+// }
+
 
 

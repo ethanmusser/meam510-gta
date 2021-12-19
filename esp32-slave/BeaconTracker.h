@@ -39,6 +39,7 @@ class BeaconTracker
         unsigned int _periods[NUM_BEACONS];
         TrackerState _state;
         unsigned long microseconds;
+        volatile float frequency[2];
 
         /**
          * Constructor for beacon tracker class.
@@ -86,18 +87,28 @@ class BeaconTracker
         /**
          * Sets target.
          */
-        void setTarget(unsigned int target);
+        void setTarget(float target);
+
+        /**
+         * Sets target.
+         */
+        void setFrequency(float freq1, float freq2);
 
     private:
         MecanumBase* _base;
         unsigned int _irPins[NUM_BEACONS];
-        unsigned int _frequencies[NUM_BEACONS];
+        unsigned int _setFrequencies[NUM_BEACONS];
         unsigned int _desPeriod[NUM_BEACONS];
         unsigned int _noise[NUM_BEACONS];
         unsigned int _period[NUM_BEACONS];
-        unsigned int _target;
+        unsigned int _freq[NUM_BEACONS];
+        float _target;
         float _driveSpeed;
         float _rotateSpeed;
+
+        volatile int currentRisingEdgeTime[2];
+        volatile int lastRisingEdgeTime[2];
+        volatile float period[2];
 
         /**
          * Search for beacon.
@@ -107,7 +118,7 @@ class BeaconTracker
         /**
          * Check period on IR detector.
          */
-        int checkPeriod(unsigned int ch);
+        bool isClose(float a, float b, float epsilon);
 };
 
 #endif  // BEACONTRACKER_h
