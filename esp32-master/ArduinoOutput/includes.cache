@@ -1,0 +1,182 @@
+[
+  {
+    "Sourcefile": null,
+    "Include": "",
+    "Includepath": "C:\\Users\\ethan\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.0\\cores\\esp32"
+  },
+  {
+    "Sourcefile": null,
+    "Include": "",
+    "Includepath": "C:\\Users\\ethan\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.0\\variants\\pico32"
+  },
+  {
+    "Sourcefile": "c:\\Users\\ethan\\Google Drive\\School\\11. Masters III - Fall 2021\\Mechatronics (MEAM 510)\\Project\\code\\meam510-gta\\esp32-slave\\ArduinoOutput\\sketch\\esp32-slave.ino.cpp",
+    "Include": "WiFi.h",
+    "Includepath": "C:\\Users\\ethan\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.0\\libraries\\WiFi\\src"
+  },
+  {
+    "Sourcefile": "c:\\Users\\ethan\\Google Drive\\School\\11. Masters III - Fall 2021\\Mechatronics (MEAM 510)\\Project\\code\\meam510-gta\\esp32-slave\\ArduinoOutput\\sketch\\esp32-slave.ino.cpp",
+    "Include": "Adafruit_VL53L0X.h",
+    "Includepath": "C:\\Users\\ethan\\Documents\\Arduino\\libraries\\Adafruit_VL53L0X\\src"
+  },
+  {
+    "Sourcefile": "c:\\Users\\ethan\\Google Drive\\School\\11. Masters III - Fall 2021\\Mechatronics (MEAM 510)\\Project\\code\\meam510-gta\\esp32-slave\\ArduinoOutput\\sketch\\esp32-slave.ino.cpp",
+    "Include": "Wire.h",
+    "Includepath": "C:\\Users\\ethan\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.0\\libraries\\Wire\\src"
+  },
+  {
+    "Sourcefile": "c:\\Users\\ethan\\Google Drive\\School\\11. Masters III - Fall 2021\\Mechatronics (MEAM 510)\\Project\\code\\meam510-gta\\esp32-slave\\ArduinoOutput\\sketch\\esp32-slave.ino.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "c:\\Users\\ethan\\Google Drive\\School\\11. Masters III - Fall 2021\\Mechatronics (MEAM 510)\\Project\\code\\meam510-gta\\esp32-slave\\ArduinoOutput\\sketch\\APC.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "c:\\Users\\ethan\\Google Drive\\School\\11. Masters III - Fall 2021\\Mechatronics (MEAM 510)\\Project\\code\\meam510-gta\\esp32-slave\\ArduinoOutput\\sketch\\BeaconTracker.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "c:\\Users\\ethan\\Google Drive\\School\\11. Masters III - Fall 2021\\Mechatronics (MEAM 510)\\Project\\code\\meam510-gta\\esp32-slave\\ArduinoOutput\\sketch\\Encoder.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "c:\\Users\\ethan\\Google Drive\\School\\11. Masters III - Fall 2021\\Mechatronics (MEAM 510)\\Project\\code\\meam510-gta\\esp32-slave\\ArduinoOutput\\sketch\\MecanumBase.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "c:\\Users\\ethan\\Google Drive\\School\\11. Masters III - Fall 2021\\Mechatronics (MEAM 510)\\Project\\code\\meam510-gta\\esp32-slave\\ArduinoOutput\\sketch\\MotorController.cpp",
+    "Include": "analogWrite.h",
+    "Includepath": "C:\\Users\\ethan\\Documents\\Arduino\\libraries\\ESP32_AnalogWrite"
+  },
+  {
+    "Sourcefile": "c:\\Users\\ethan\\Google Drive\\School\\11. Masters III - Fall 2021\\Mechatronics (MEAM 510)\\Project\\code\\meam510-gta\\esp32-slave\\ArduinoOutput\\sketch\\MotorController.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "c:\\Users\\ethan\\Google Drive\\School\\11. Masters III - Fall 2021\\Mechatronics (MEAM 510)\\Project\\code\\meam510-gta\\esp32-slave\\ArduinoOutput\\sketch\\TripleTOF.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "c:\\Users\\ethan\\Google Drive\\School\\11. Masters III - Fall 2021\\Mechatronics (MEAM 510)\\Project\\code\\meam510-gta\\esp32-slave\\ArduinoOutput\\sketch\\WallFollower.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "c:\\Users\\ethan\\Google Drive\\School\\11. Masters III - Fall 2021\\Mechatronics (MEAM 510)\\Project\\code\\meam510-gta\\esp32-slave\\ArduinoOutput\\sketch\\html510.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "c:\\Users\\ethan\\Google Drive\\School\\11. Masters III - Fall 2021\\Mechatronics (MEAM 510)\\Project\\code\\meam510-gta\\esp32-slave\\ArduinoOutput\\sketch\\vive510.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\ethan\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.0\\libraries\\WiFi\\src\\ETH.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\ethan\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.0\\libraries\\WiFi\\src\\WiFi.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\ethan\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.0\\libraries\\WiFi\\src\\WiFiAP.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\ethan\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.0\\libraries\\WiFi\\src\\WiFiClient.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\ethan\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.0\\libraries\\WiFi\\src\\WiFiGeneric.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\ethan\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.0\\libraries\\WiFi\\src\\WiFiMulti.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\ethan\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.0\\libraries\\WiFi\\src\\WiFiSTA.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\ethan\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.0\\libraries\\WiFi\\src\\WiFiScan.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\ethan\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.0\\libraries\\WiFi\\src\\WiFiServer.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\ethan\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.0\\libraries\\WiFi\\src\\WiFiUdp.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\ethan\\Documents\\Arduino\\libraries\\Adafruit_VL53L0X\\src\\Adafruit_VL53L0X.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\ethan\\Documents\\Arduino\\libraries\\Adafruit_VL53L0X\\src\\core\\src\\vl53l0x_api.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\ethan\\Documents\\Arduino\\libraries\\Adafruit_VL53L0X\\src\\core\\src\\vl53l0x_api_calibration.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\ethan\\Documents\\Arduino\\libraries\\Adafruit_VL53L0X\\src\\core\\src\\vl53l0x_api_core.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\ethan\\Documents\\Arduino\\libraries\\Adafruit_VL53L0X\\src\\core\\src\\vl53l0x_api_ranging.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\ethan\\Documents\\Arduino\\libraries\\Adafruit_VL53L0X\\src\\core\\src\\vl53l0x_api_strings.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\ethan\\Documents\\Arduino\\libraries\\Adafruit_VL53L0X\\src\\platform\\src\\vl53l0x_i2c_comms.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\ethan\\Documents\\Arduino\\libraries\\Adafruit_VL53L0X\\src\\platform\\src\\vl53l0x_platform.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\ethan\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.0\\libraries\\Wire\\src\\Wire.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\ethan\\Documents\\Arduino\\libraries\\ESP32_AnalogWrite\\analogWrite.cpp",
+    "Include": "",
+    "Includepath": null
+  }
+]
